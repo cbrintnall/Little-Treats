@@ -1,0 +1,11 @@
+{
+  "items": ["minecraft:porkchop", "minecraft:cooked_porkchop"],
+  "modifications": [
+    {
+      "attribute": "minecraft:generic.movement_speed",
+      "amount": 1.0,
+      "op": "add_value",
+      "duration": 2000
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+package com.odder.littletreat;
+
+import com.odder.littletreat.command.TreatCommands;
+import com.odder.littletreat.init.Attachments;
+import com.odder.littletreat.init.DataComponents;
+import com.odder.littletreat.init.Registries;
+import com.odder.littletreat.payload.SyncModificationsPayload;
+import com.odder.littletreat.processing.FoodDispatcher;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
+
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.common.NeoForge;
+
+@Mod(LittleTreat.MODID)
+public class LittleTreat {
+    public static final String MODID = "littletreat";
+    public static final Logger LOGGER = LogUtils.getLogger();
+
+    public LittleTreat(IEventBus modEventBus, ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        NeoForge.EVENT_BUS.register(FoodDispatcher.INSTANCE);
+
+        Attachments.ATTACHMENTS.register(modEventBus);
+        DataComponents.COMPONENTS.register(modEventBus);
+
+        modEventBus.addListener(Registries::registerDatapackRegistries);
+        modEventBus.addListener(LittleTreat::registerPayloads);
+
+        NeoForge.EVENT_BUS.addListener(TreatCommands::onRegisterCommands);
+    }
+
+    private static void registerPayloads(RegisterPayloadHandlersEvent event) {
+        event.registrar("1")
+                .playToClient(
+                        SyncModificationsPayload.TYPE,
+                        SyncModificationsPayload.STREAM_CODEC,
+                        SyncModificationsPayload::handle
+                );
+    }
+}

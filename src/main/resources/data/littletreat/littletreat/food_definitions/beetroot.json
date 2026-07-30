@@ -1,0 +1,11 @@
+{
+  "items": "minecraft:beetroot",
+  "modifications": [
+    {
+      "attribute": "minecraft:generic.armor",
+      "amount": 1.0,
+      "op": "add_value",
+      "duration": 2000
+    }
+  ]
+}

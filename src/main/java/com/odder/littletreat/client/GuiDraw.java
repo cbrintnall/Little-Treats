@@ -1,0 +1,156 @@
+package com.odder.littletreat.client;
+
+import com.odder.littletreat.Config;
+import com.odder.littletreat.codec.ActiveModificationDefinition;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+
+import java.text.DecimalFormat;
+import java.util.Collection;
+
+public class GuiDraw {
+    private static final ResourceLocation EFFECT_BACKGROUND_LARGE_SPRITE = ResourceLocation.withDefaultNamespace("container/inventory/effect_background_large");
+    private static final ResourceLocation EFFECT_BACKGROUND_SMALL_SPRITE = ResourceLocation.withDefaultNamespace("container/inventory/effect_background_small");
+    private static final ResourceLocation HEADER_SEPARATOR = ResourceLocation.withDefaultNamespace("textures/gui/header_separator.png");
+    private static final int BACKGROUND_SPRITE_SIZE = 24;
+
+    /**
+     * Draws a bar similar to durability, but takes in a progress amount (0.0 - 1.0) to
+     * display the actual amount
+     * @param gfx gfx api
+     * @param x x coord to draw at
+     * @param y y coord to draw at
+     * @param progress 0.0 - 1.0
+     */
+    public static void drawDurationBar(GuiGraphics gfx, int x, int y, float progress, int width) {
+        progress = Math.clamp(progress, 0.0f, 1.0f);
+        int usedWidth = (int) (width * progress);
+
+        gfx.fill(x, y, x + width, y + 2, 0xFF000000);
+        gfx.fill(x, y, x + usedWidth, y + 2, 0xFF40C040);
+    }
+
+    public static void drawActiveModifications(Collection<ActiveModificationDefinition> mods, GuiGraphics gfx, int x, int y) {
+        for(ActiveModificationDefinition activeModificationDefinition : mods) {
+            y += drawActiveModification(gfx, activeModificationDefinition, x, y);
+        }
+    }
+
+    // Much of this borrows logic from 'EffectRenderingInventoryScreen.renderEffects(...)'
+    public static void drawInventoryActiveModifications(EffectRenderingInventoryScreen<?> screen, Collection<ActiveModificationDefinition> mods, GuiGraphics gfx, int mouseX, int mouseY){
+        int x = screen.getGuiLeft()+screen.getXSize() + 2;
+        int width = screen.width-x;
+
+        if (width < 32) return;
+
+        boolean drawLarge = width >= 120;
+        ScreenEvent.RenderInventoryMobEffects event = ClientHooks.onScreenPotionSize(screen, width, !drawLarge, x);
+
+        if (event.isCanceled()) {
+            return;
+        }
+
+        Collection<MobEffectInstance> effects = Minecraft.getInstance().player.getActiveEffects();
+        int top = screen.getGuiTop() + effects.size() * 33;
+
+        drawLarge = !event.isCompact();
+        x = event.getHorizontalOffset();
+
+        int k = 33;
+        if (mods.size() > 5) {
+            k = 132 / (mods.size()-1);
+        }
+
+        if (!mods.isEmpty() && !effects.isEmpty()) {
+            top += 2;
+            int sepWidth = drawLarge ? 120 : 32;
+            gfx.blit(HEADER_SEPARATOR, x, top, 0, 0, sepWidth, 2, 32, 2);
+            top += 4;
+        }
+
+        renderBackgrounds(gfx, x, k, mods, drawLarge, top);
+        renderIcons(gfx, x, k, mods, drawLarge, top);
+
+        if (drawLarge) {
+            renderLabels(gfx, x, k, mods, top);
+        }
+    }
+
+    public static Component formatModifier(double amount, AttributeModifier.Operation op) {
+        double display;
+        boolean percent;
+
+        switch (op) {
+            case ADD_MULTIPLIED_BASE, ADD_MULTIPLIED_TOTAL -> {
+                display = amount * 100.0;
+                percent = true;
+            }
+            default -> { display = amount; percent = false; }
+        }
+
+        boolean positive = display >= 0;
+        String number = FORMAT.format(display);
+        String text = (positive ? "+" : "") + number + (percent ? "%" : "");
+
+        return Component.literal(text)
+                .withStyle(positive ? ChatFormatting.BLUE : ChatFormatting.RED);
+    }
+
+    private static int drawActiveModification(GuiGraphics gfx, ActiveModificationDefinition def, int x, int y) {
+        gfx.blitSprite(EFFECT_BACKGROUND_SMALL_SPRITE, x, y, BACKGROUND_SPRITE_SIZE, BACKGROUND_SPRITE_SIZE);
+        gfx.renderItem(def.getItem(), x+4,y+4);
+        GuiDraw.drawDurationBar(gfx, x+2, y + 20, def.getRemainingPercent(), 20);
+        return BACKGROUND_SPRITE_SIZE + Config.EFFECT_MARGIN.get();
+    }
+
+    private static final DecimalFormat FORMAT = Util.make(
+            new DecimalFormat("#.##"),
+            f -> f.setDecimalSeparatorAlwaysShown(false));
+
+    private static void renderBackgrounds(GuiGraphics guiGraphics, int renderX, int yOffset, Iterable<ActiveModificationDefinition> mods, boolean isSmall, int topPos) {
+        int i = topPos;
+
+        for (ActiveModificationDefinition mod : mods) {
+            if (isSmall) {
+                guiGraphics.blitSprite(EFFECT_BACKGROUND_LARGE_SPRITE, renderX, i, 120, 32);
+            } else {
+                guiGraphics.blitSprite(EFFECT_BACKGROUND_SMALL_SPRITE, renderX, i, 32, 32);
+            }
+
+            i += yOffset;
+        }
+    }
+
+    private static void renderIcons(GuiGraphics gfx, int x, int yOffset, Iterable<ActiveModificationDefinition> mods, boolean isSmall, int topPos) {
+        int i = topPos;
+
+        for(ActiveModificationDefinition mod : mods) {
+            gfx.renderItem(mod.getItem(), x+8,i+8);
+            i += yOffset;
+        }
+    }
+
+    private static void renderLabels(GuiGraphics guiGraphics, int renderX, int yOffset, Iterable<ActiveModificationDefinition> mods, int topPos) {
+        int i = topPos;
+        Font font = Minecraft.getInstance().font;
+
+        for(ActiveModificationDefinition mod : mods) {
+            Component component = mod.source.value().getDescription();
+            guiGraphics.drawString(font, component, renderX + 10 + 18, i + 6, 16777215);
+            String remaining = StringUtil.formatTickDuration(mod.remainingTicks(), Minecraft.getInstance().level.tickRateManager().tickrate());
+            guiGraphics.drawString(font, Component.literal(remaining), renderX + 10 + 18, i + 6 + 10, 8355711);
+            i += yOffset;
+        }
+    }
+}
