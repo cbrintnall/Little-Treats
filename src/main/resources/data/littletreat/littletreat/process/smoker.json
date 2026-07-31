@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smoking",
-  "modifications": [
-    {
-      "modification": "add",
-      "amount": 0.1
-    }
-  ]
-}

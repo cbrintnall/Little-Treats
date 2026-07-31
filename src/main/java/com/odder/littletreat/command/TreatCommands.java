@@ -1,6 +1,7 @@
 package com.odder.littletreat.command;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.odder.littletreat.LittleTreat;
 import com.odder.littletreat.processing.FoodDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -12,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ public class TreatCommands {
                         .requires(src -> src.hasPermission(2))
                         .then(getClearCommand())
                         .then(getAvailableAttributesCommand())
+                        .then(getRegenAmountCommand())
         );
     }
 
@@ -40,6 +43,20 @@ public class TreatCommands {
         return Commands.literal("attributes")
                 .then(Commands.argument("targets", EntityArgument.entities())
                         .executes(ctx -> dumpAttributes(ctx.getSource(), EntityArgument.getEntities(ctx, "targets"))));
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> getRegenAmountCommand() {
+        return Commands.literal("possibleregen")
+                .then(Commands.argument("targets", EntityArgument.entities())
+                        .executes(ctx -> checkRegen(ctx.getSource(), EntityArgument.getPlayers(ctx, "targets"))));
+    }
+
+    private static int checkRegen(CommandSourceStack src, Collection<ServerPlayer> players) {
+       for (ServerPlayer player : players) {
+           src.sendSystemMessage(Component.literal(String.format("%s = %.1f", player.getDisplayName().getString(), LittleTreat.healthRegen.getMaxNaturalRegenForPlayer(player))));
+       }
+
+        return 0;
     }
 
     private static int dumpAttributes(CommandSourceStack src, Collection<? extends Entity> entities) {

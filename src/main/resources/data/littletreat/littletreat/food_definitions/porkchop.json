@@ -3,7 +3,7 @@
   "modifications": [
     {
       "attribute": "minecraft:generic.movement_speed",
-      "amount": 1.0,
+      "amount": 0.025,
       "op": "add_value",
       "duration": 2000
     }

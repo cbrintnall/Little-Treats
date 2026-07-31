@@ -5,6 +5,7 @@ import com.odder.littletreat.init.Attachments;
 import com.odder.littletreat.init.DataComponents;
 import com.odder.littletreat.init.Registries;
 import com.odder.littletreat.payload.SyncModificationsPayload;
+import com.odder.littletreat.player.HealthRegen;
 import com.odder.littletreat.processing.FoodDispatcher;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ public class LittleTreat {
     public static final String MODID = "littletreat";
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final HealthRegen healthRegen = new HealthRegen();
+
     public LittleTreat(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
@@ -34,6 +37,7 @@ public class LittleTreat {
         modEventBus.addListener(LittleTreat::registerPayloads);
 
         NeoForge.EVENT_BUS.addListener(TreatCommands::onRegisterCommands);
+        NeoForge.EVENT_BUS.register(healthRegen);
     }
 
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {

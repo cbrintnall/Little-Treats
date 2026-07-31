@@ -1,5 +1,6 @@
 package com.odder.littletreat.client;
 
+import com.odder.littletreat.Config;
 import com.odder.littletreat.codec.ActiveModificationDefinition;
 import com.odder.littletreat.codec.AttributeModificationDefinition;
 import com.odder.littletreat.processing.FoodDispatcher;
@@ -10,9 +11,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderGuiEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.ArrayList;
@@ -30,6 +30,13 @@ public class ClientState {
 
     public Collection<ActiveModificationDefinition> getActive() {
         return active;
+    }
+
+    @SubscribeEvent
+    private void onRenderGuiLayer(RenderGuiLayerEvent.Pre event) {
+        if (Config.DISABLE_VANILLA_HUNGER.get() && event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent

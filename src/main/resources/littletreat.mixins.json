@@ -5,7 +5,8 @@
   "mixins": [
     "AbstractCookingRecipeMixin",
     "ShapedRecipeMixin",
-    "ShapelessRecipeMixin"
+    "ShapelessRecipeMixin",
+    "PlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

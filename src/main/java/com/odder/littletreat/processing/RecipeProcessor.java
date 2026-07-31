@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.neoforged.fml.util.thread.EffectiveSide;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
@@ -23,9 +24,9 @@ import java.util.stream.Collectors;
 public class RecipeProcessor {
     public static RecipeProcessor INSTANCE = new RecipeProcessor();
 
-    private HashMap<Item, List<AttributeModificationDefinition>> attrCache = new HashMap<>();
-
     public void process(Collection<ItemStack> inputs, ItemStack output, RecipeType<?> type) {
+        if (EffectiveSide.get().isClient()) return;
+
         var modifiers = inputs
                 .stream()
                 .map(stack -> getModificationsFor(stack.getItemHolder()))

@@ -1,13 +1,19 @@
 package com.odder.littletreat.processing;
 
+import com.odder.littletreat.Config;
 import com.odder.littletreat.LittleTreat;
+import com.odder.littletreat.client.ClientState;
 import com.odder.littletreat.codec.ActiveModificationDefinition;
 import com.odder.littletreat.codec.AttributeModificationDefinition;
+import com.odder.littletreat.codec.FoodDefinition;
 import com.odder.littletreat.init.Attachments;
 import com.odder.littletreat.init.DataComponents;
 import com.odder.littletreat.init.Registries;
 import com.odder.littletreat.payload.SyncModificationsPayload;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
@@ -15,11 +21,13 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.util.thread.EffectiveSide;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.*;
 
@@ -27,29 +35,18 @@ public class FoodDispatcher {
     public static final FoodDispatcher INSTANCE =  new FoodDispatcher();
 
     private Queue<Tuple<ActiveModificationDefinition, ServerPlayer>> removals = new ArrayDeque<>();
+    private HashMap<ResourceLocation, List<FoodDefinition>> cachedDefinitions = new HashMap<>();
 
     public FoodDispatcher() {}
 
     public static List<AttributeModificationDefinition> collectModifications(ItemStack eaten) {
         List<AttributeModificationDefinition> modifications = new ArrayList<>();
 
-        var server = ServerLifecycleHooks.getCurrentServer();
-
-        if (server == null) {
-            LittleTreat.LOGGER.error("Tried to collect modifications, but theres no server?");
-            return modifications;
+        ResourceLocation loc = eaten.getItemHolder().getKey().location();
+        if (INSTANCE.cachedDefinitions.containsKey(loc)) {
+            var definitions = INSTANCE.cachedDefinitions.get(loc);
+            modifications.addAll(definitions.stream().map(FoodDefinition::modifications).flatMap(Collection::stream).toList());
         }
-
-        var registry = server.registryAccess().registry(Registries.FOOD_DEFINITIONS);
-
-        registry.ifPresent(registryEntry -> {
-            registryEntry.asHolderIdMap().forEach(con -> {
-                var items = con.value().items();
-                if (items.contains(eaten.getItemHolder())) {
-                    modifications.addAll(con.value().modifications());
-                }
-            });
-        });
 
         modifications.addAll(eaten.getOrDefault(DataComponents.INHERITED_MODIFICATIONS, Collections.emptyList()));
 
@@ -104,6 +101,49 @@ public class FoodDispatcher {
             if (!wasFinished && modification.isFinished()) {
                 removals.add(new Tuple<>(modification, player));
             }
+        }
+    }
+
+    @SubscribeEvent
+    private void onDatapackSync(OnDatapackSyncEvent event) {
+        RegistryAccess access = EffectiveSide.get().isServer()
+                ? event.getPlayer().registryAccess()
+                : Minecraft.getInstance().level.registryAccess();
+
+        Registry<FoodDefinition> registry = access.registryOrThrow(Registries.FOOD_DEFINITIONS);
+
+        cachedDefinitions.clear();
+
+        for (var entry : registry.entrySet()) {
+            entry.getValue().items().forEach(item -> {
+                ResourceLocation loc = item.getKey().location();
+
+                if (!cachedDefinitions.containsKey(loc)) {
+                    cachedDefinitions.put(loc, new ArrayList<>());
+                }
+
+                cachedDefinitions.get(loc).add(entry.getValue());
+            });
+        }
+
+        LittleTreat.LOGGER.debug("Rebuilt Little Treat item cache, {} items counted", cachedDefinitions.keySet().size());
+    }
+
+    @SubscribeEvent
+    private void onStart(PlayerInteractEvent.RightClickItem event) {
+        Collection<ActiveModificationDefinition> mods = EffectiveSide.get().isClient()
+                ? ClientState.INSTANCE.getActive()
+                : event.getEntity().getData(Attachments.ACTIVE_MODIFICATIONS);
+
+        int count = mods.size();
+
+        // Allow eating if what we're eating matches an attribute source (to refresh duration)
+        if (mods.stream().anyMatch(mod -> mod.source.equals(event.getItemStack().getItemHolder()))) {
+            return;
+        }
+
+        if (count >= Config.ALLOWED_EFFECT_COUNT.get()) {
+            event.setCanceled(true);
         }
     }
 

@@ -10,8 +10,8 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 public class Registries {
     public static final ResourceKey<Registry<FoodDefinition>> FOOD_DEFINITIONS =
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(LittleTreat.MODID, "food_definitions"));
-    
+
     public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(FOOD_DEFINITIONS, FoodDefinition.CODEC);
+        event.dataPackRegistry(FOOD_DEFINITIONS, FoodDefinition.CODEC, FoodDefinition.CODEC);
     }
 }
