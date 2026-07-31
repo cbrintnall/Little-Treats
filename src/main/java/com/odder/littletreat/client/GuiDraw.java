@@ -9,6 +9,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -18,6 +19,8 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 public class GuiDraw {
     private static final ResourceLocation EFFECT_BACKGROUND_LARGE_SPRITE = ResourceLocation.withDefaultNamespace("container/inventory/effect_background_large");
@@ -80,10 +83,27 @@ public class GuiDraw {
         }
 
         renderBackgrounds(gfx, x, k, mods, drawLarge, top);
-        renderIcons(gfx, x, k, mods, drawLarge, top);
+        renderIcons(gfx, x, k, mods, top);
 
         if (drawLarge) {
             renderLabels(gfx, x, k, mods, top);
+        }
+
+        int trackingY = top;
+        for (ActiveModificationDefinition activeModificationDefinition : mods) {
+            if (isMouseHoveringStatus(mouseX, mouseY, x, trackingY, drawLarge)) {
+                List<Component> modifiers = activeModificationDefinition.defs
+                        .stream()
+                        .<Component>map(def -> {
+                            var amountComponent = formatModifier(def.amount(), def.op());
+                            return Component.translatable(def.attribute().value().getDescriptionId()).append(": ").append(amountComponent);
+                        })
+                        .toList();
+
+                gfx.renderTooltip(Minecraft.getInstance().font, modifiers, Optional.empty(), mouseX, mouseY);
+            }
+
+            trackingY += k;
         }
     }
 
@@ -105,6 +125,20 @@ public class GuiDraw {
 
         return Component.literal(text)
                 .withStyle(positive ? ChatFormatting.BLUE : ChatFormatting.RED);
+    }
+
+    private static boolean isMouseHoveringStatus(int mouseX, int mouseY, int x, int y, boolean drawLarge) {
+        if (drawLarge) {
+            return mouseX >= x
+                && mouseX < x + 120
+                && mouseY >= y
+                && mouseY < y + 32;
+        } else {
+            return mouseX >= x
+                    && mouseX < x + 32
+                    && mouseY >= y
+                    && mouseY < y + 32;
+        }
     }
 
     private static int drawActiveModification(GuiGraphics gfx, ActiveModificationDefinition def, int x, int y) {
@@ -132,11 +166,11 @@ public class GuiDraw {
         }
     }
 
-    private static void renderIcons(GuiGraphics gfx, int x, int yOffset, Iterable<ActiveModificationDefinition> mods, boolean isSmall, int topPos) {
+    private static void renderIcons(GuiGraphics gfx, int x, int yOffset, Iterable<ActiveModificationDefinition> mods, int topPos) {
         int i = topPos;
 
         for(ActiveModificationDefinition mod : mods) {
-            gfx.renderItem(mod.getItem(), x+8,i+8);
+            gfx.renderItem(mod.getItem(), x+7,i+7);
             i += yOffset;
         }
     }
