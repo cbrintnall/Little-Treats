@@ -3,6 +3,8 @@ package com.odder.littletreat.codec;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.odder.littletreat.LittleTreat;
+import com.odder.littletreat.init.Attachments;
+import com.odder.littletreat.payload.SyncModificationsPayload;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -11,87 +13,80 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ActiveModificationDefinition{
     public static final StreamCodec<RegistryFriendlyByteBuf, ActiveModificationDefinition> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.holderRegistry(Registries.ITEM), ActiveModificationDefinition::source,
-            AttributeModificationDefinition.STREAM_CODEC, ActiveModificationDefinition::def,
+            AttributeModificationDefinition.STREAM_CODEC.apply(ByteBufCodecs.list()), ActiveModificationDefinition::defs,
             ByteBufCodecs.VAR_INT, ActiveModificationDefinition::remainingTicks,
             ActiveModificationDefinition::new
     );
 
     public static final Codec<ActiveModificationDefinition> CODEC = RecordCodecBuilder.create(inst -> inst.group(
         BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("source").forGetter(ActiveModificationDefinition::source),
-        AttributeModificationDefinition.CODEC.fieldOf("def").forGetter(ActiveModificationDefinition::def),
+        AttributeModificationDefinition.CODEC.listOf().fieldOf("def").forGetter(ActiveModificationDefinition::defs),
         Codec.INT.fieldOf("remainingTicks").forGetter(ActiveModificationDefinition::remainingTicks)
     ).apply(inst, ActiveModificationDefinition::new));
 
-    public static ResourceLocation createIdFor(Holder<Item> src, AttributeModificationDefinition def) {
-        var path = String.format(
-                "treat/%s/%s",
-                def.attribute().getRegisteredName().replace(":", "_"),
-                src.getRegisteredName().replace(":", "_")
-        );
+    public static void addActiveModification(ActiveModificationDefinition modDef, ServerPlayer player){
+        // copy incoming since it's immutable
+        List<ActiveModificationDefinition> activeMods = new ArrayList<>(player.getData(Attachments.ACTIVE_MODIFICATIONS));
+        activeMods.add(modDef);
+        player.setData(Attachments.ACTIVE_MODIFICATIONS, activeMods);
+        SyncModificationsPayload.syncToClient(player);
+    }
 
-        return ResourceLocation.fromNamespaceAndPath(LittleTreat.MODID, path);
+    public static void updateActiveModifications(Collection<ActiveModificationDefinition> mods, ServerPlayer player) {
+        player.setData(Attachments.ACTIVE_MODIFICATIONS, mods.stream().toList());
+        SyncModificationsPayload.syncToClient(player);
     }
 
     public Holder<Item> source;
-    public AttributeModificationDefinition def;
+    public List<AttributeModificationDefinition> defs;
     public int remainingTicks;
 
-    private final ResourceLocation id;
     private final ItemStack item;
+    private final int maxDuration;
 
-    public ActiveModificationDefinition(Holder<Item> source, AttributeModificationDefinition def, int remainingTicks) {
+    public ActiveModificationDefinition(Holder<Item> source, Collection<AttributeModificationDefinition> defs, int remainingTicks) {
         this.source = source;
-        this.def = def;
+        this.defs = defs.stream().toList();
+        this.maxDuration = AttributeModificationDefinition.getMaxDuration(defs);
         this.remainingTicks = remainingTicks;
-        this.id = createIdFor(source, def);
-        this.item = new ItemStack(BuiltInRegistries.ITEM.get(source.getKey().location()));
-    }
 
-    public ActiveModificationDefinition(Holder<Item> source, AttributeModificationDefinition def) {
-        this.source = source;
-        this.def = def;
-        this.remainingTicks = def.duration();
-
-        this.id = createIdFor(source, def);
         this.item = new ItemStack(BuiltInRegistries.ITEM.get(source.getKey().location()));
     }
 
     public float getRemainingPercent() {
-        return (float) this.remainingTicks / this.def.duration();
+        return (float) this.remainingTicks / maxDuration;
     }
 
     public void resetTicks() {
-        this.remainingTicks = def.duration();
+        this.remainingTicks = maxDuration;
     }
 
     public ItemStack getItem() {
         return item;
     }
 
-    public ResourceLocation getId() {
-        return this.id;
-    }
-
     public Holder<Item> source() { return source; }
 
-    public AttributeModificationDefinition def() {
-        return def;
+    public List<AttributeModificationDefinition> defs() {
+        return defs;
     }
 
     public int remainingTicks() {
         return remainingTicks;
-    }
-
-
-    public AttributeModifier toModifier() {
-        return new AttributeModifier(getId(), def.amount(), def.op());
     }
 
     public void progressTicks(int ticks) {

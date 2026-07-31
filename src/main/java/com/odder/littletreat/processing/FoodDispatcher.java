@@ -19,6 +19,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -54,41 +55,40 @@ public class FoodDispatcher {
         return modifications;
     }
 
-    public void applyModification(Holder<Item> src, AttributeModificationDefinition modification, ServerPlayer player) {
-        AttributeInstance attr = player.getAttribute(modification.attribute());
+    /**
+     * Applies the relevant modifications and attaches the active definition to the player
+     * @param src
+     * @param modification
+     * @param player
+     * @return
+     */
+    public ActiveModificationDefinition applyModifications(Holder<Item> src, Collection<AttributeModificationDefinition> modification, ServerPlayer player) {
+        List<AttributeModificationDefinition> appliedModifiers = new ArrayList<>();
 
-        if (attr == null) return;
-
-        List<ActiveModificationDefinition> activeModifications = player.getData(Attachments.ACTIVE_MODIFICATIONS.get());
-        ResourceLocation futureId = ActiveModificationDefinition.createIdFor(src, modification);
-        var modifier = attr.getModifier(futureId);
-
-        if (modifier != null) {
-            activeModifications
-                .stream()
-                .filter(mod -> mod.getId().equals(futureId))
-                .findFirst()
-                .ifPresent(mod -> {
-                    mod.resetTicks();
-                    player.setData(Attachments.ACTIVE_MODIFICATIONS, activeModifications);
-                    SyncModificationsPayload.syncToClient(player);
-                    LittleTreat.LOGGER.debug("Reset duration of {}", futureId);
-                });
-
-            return;
+        for (AttributeModificationDefinition def : modification) {
+            if (tryApplyModification(src, def, player)) {
+                appliedModifiers.add(def);
+            }
         }
 
-        ActiveModificationDefinition activeModification = new ActiveModificationDefinition(src, modification);
+        ActiveModificationDefinition modDef = new ActiveModificationDefinition(src, appliedModifiers, AttributeModificationDefinition.getMaxDuration(appliedModifiers));
+        ActiveModificationDefinition.addActiveModification(modDef, player);
 
-        attr.addOrUpdateTransientModifier(activeModification.toModifier());
-
-        List<ActiveModificationDefinition> newSet = new ArrayList<>(activeModifications);
-        newSet.add(activeModification);
-        player.setData(Attachments.ACTIVE_MODIFICATIONS.get(), newSet);
+        return modDef;
     }
 
     public void clearAllBuffs(ServerPlayer player) {
         progressPlayerTicks(player, Integer.MAX_VALUE);
+    }
+
+    private boolean tryApplyModification(Holder<Item> src, AttributeModificationDefinition def, ServerPlayer player) {
+        AttributeInstance attr = player.getAttribute(def.attribute());
+
+        if (attr == null) return false;
+
+        attr.addOrUpdateTransientModifier(def.toModifier(src));
+
+        return true;
     }
 
     private void progressPlayerTicks(ServerPlayer player, int ticks) {
@@ -103,6 +103,14 @@ public class FoodDispatcher {
                 removals.add(new Tuple<>(modification, player));
             }
         }
+    }
+
+    private ActiveModificationDefinition getActiveModificationForFood(Holder<Item> holder, Player player) {
+        Collection<ActiveModificationDefinition> mods = EffectiveSide.get().isClient()
+                ? ClientState.INSTANCE.getActive()
+                : player.getData(Attachments.ACTIVE_MODIFICATIONS);
+
+        return mods.stream().filter(mod -> mod.source.equals(holder)).findFirst().orElse(null);
     }
 
     @SubscribeEvent
@@ -133,13 +141,12 @@ public class FoodDispatcher {
                 ? ClientState.INSTANCE.getActive()
                 : event.getEntity().getData(Attachments.ACTIVE_MODIFICATIONS);
 
-        int count = mods.size();
-
-        // Allow eating if what we're eating matches an attribute source (to refresh duration)
-        if (mods.stream().anyMatch(mod -> mod.source.equals(event.getItemStack().getItemHolder()))) {
+        // Allow eating if we already have this food in a slot
+        if (getActiveModificationForFood(event.getItemStack().getItemHolder(), event.getEntity()) != null) {
             return;
         }
 
+        int count = mods.size();
         if (count >= Config.ALLOWED_EFFECT_COUNT.get()) {
             event.setCanceled(true);
         }
@@ -149,11 +156,30 @@ public class FoodDispatcher {
     private void onFinish(LivingEntityUseItemEvent.Finish event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
 
+        ActiveModificationDefinition activeMod = getActiveModificationForFood(event.getItem().getItemHolder(), serverPlayer);
+
+        // refreshes the duration, keys on food not attributes
+        if (activeMod != null) {
+            Collection<ActiveModificationDefinition> mods = serverPlayer.getData(Attachments.ACTIVE_MODIFICATIONS);
+
+            for (ActiveModificationDefinition mod : mods) {
+                if (mod == activeMod) {
+                    mod.resetTicks();
+                    break;
+                }
+            }
+
+            ActiveModificationDefinition.updateActiveModifications(mods, serverPlayer);
+            return;
+        }
+
         List<AttributeModificationDefinition> modifications = collectModifications(event.getItem());
 
-        for(AttributeModificationDefinition modification : modifications) {
-            applyModification(event.getItem().getItemHolder(), modification, serverPlayer);
-        }
+        applyModifications(
+                event.getItem().getItemHolder(),
+                modifications,
+                serverPlayer
+        );
 
         SyncModificationsPayload.syncToClient(serverPlayer);
     }
@@ -169,8 +195,11 @@ public class FoodDispatcher {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
 
         for (ActiveModificationDefinition mod : serverPlayer.getData(Attachments.ACTIVE_MODIFICATIONS.get())) {
-            AttributeInstance attr = serverPlayer.getAttribute(mod.def().attribute());
-            if (attr != null) attr.addOrUpdateTransientModifier(mod.toModifier());
+            for (AttributeModificationDefinition attrDef : mod.defs()) {
+                AttributeInstance attr = serverPlayer.getAttribute(attrDef.attribute());
+                if (attr != null) attr.addOrUpdateTransientModifier(attrDef.toModifier(mod.source));
+            }
+
         }
 
         SyncModificationsPayload.syncToClient(serverPlayer);
@@ -186,8 +215,11 @@ public class FoodDispatcher {
             var newSet = new ArrayList<>(player.getData(Attachments.ACTIVE_MODIFICATIONS.get()));
             newSet.remove(modification);
             player.setData(Attachments.ACTIVE_MODIFICATIONS.get(), newSet);
-            AttributeInstance attr = player.getAttribute(modification.def.attribute());
-            attr.removeModifier(modification.getId());
+            for (AttributeModificationDefinition attrDef : modification.defs()) {
+                AttributeInstance attr = player.getAttribute(attrDef.attribute());
+                attr.removeModifier(AttributeModificationDefinition.createIdFor(modification.source, attrDef));
+            }
+
             SyncModificationsPayload.syncToClient(player);
         }
     }
