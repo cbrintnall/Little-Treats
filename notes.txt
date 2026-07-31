@@ -1,0 +1,2 @@
+- add tag #littletreats:provides_attribute for all items in datapack
+- confirm or get working placeable food like cake

@@ -1,0 +1,11 @@
+{
+  "items": ["minecraft:red_mushroom"],
+  "modifications": [
+    {
+      "attribute": "puffish_attributes:ranged_resistance",
+      "amount": 0.5,
+      "op": "add_value",
+      "duration": 1500
+    }
+  ]
+}

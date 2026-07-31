@@ -1,0 +1,11 @@
+{
+  "items": ["minecraft:cocoa_beans"],
+  "modifications": [
+    {
+      "attribute": "minecraft:player.mining_efficiency",
+      "amount": 0.1,
+      "op": "add_multiplied_base",
+      "duration": 600
+    }
+  ]
+}

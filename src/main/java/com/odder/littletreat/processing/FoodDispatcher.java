@@ -15,6 +15,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -106,10 +107,7 @@ public class FoodDispatcher {
 
     @SubscribeEvent
     private void onDatapackSync(OnDatapackSyncEvent event) {
-        RegistryAccess access = EffectiveSide.get().isServer()
-                ? event.getPlayer().registryAccess()
-                : Minecraft.getInstance().level.registryAccess();
-
+        RegistryAccess access = event.getPlayerList().getServer().registryAccess();
         Registry<FoodDefinition> registry = access.registryOrThrow(Registries.FOOD_DEFINITIONS);
 
         cachedDefinitions.clear();

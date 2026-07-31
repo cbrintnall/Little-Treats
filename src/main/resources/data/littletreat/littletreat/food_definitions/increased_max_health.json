@@ -1,0 +1,11 @@
+{
+  "items": ["minecraft:porkchop", "minecraft:salmon", "minecraft:chicken"],
+  "modifications": [
+    {
+      "attribute": "minecraft:generic.max_health",
+      "amount": 2.0,
+      "op": "add_value",
+      "duration": 2000
+    }
+  ]
+}

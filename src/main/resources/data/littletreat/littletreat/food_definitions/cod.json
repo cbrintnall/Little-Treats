@@ -1,0 +1,11 @@
+{
+  "items": ["minecraft:cod"],
+  "modifications": [
+    {
+      "attribute": "minecraft:generic.oxygen_bonus",
+      "amount": 1.0,
+      "op": "add_value",
+      "duration": 2000
+    }
+  ]
+}

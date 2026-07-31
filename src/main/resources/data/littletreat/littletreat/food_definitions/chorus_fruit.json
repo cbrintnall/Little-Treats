@@ -1,0 +1,11 @@
+{
+  "items": ["minecraft:chorus_fruit"],
+  "modifications": [
+    {
+      "attribute": "puffish_attributes:stealth",
+      "amount": -5.0,
+      "op": "add_value",
+      "duration": 1250
+    }
+  ]
+}
