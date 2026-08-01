@@ -15,7 +15,7 @@ import java.util.List;
 
 public class RecipeAssembledEvent extends Event {
     private final Collection<ItemStack> inputs;
-    private ItemStack output;
+    private final ItemStack output;
     private final RecipeType<?> recipeType;
 
     public static RecipeAssembledEvent fromIngredients(Collection<Ingredient> ingredients, ItemStack output, RecipeType<?> recipeType) {
@@ -36,7 +36,11 @@ public class RecipeAssembledEvent extends Event {
     }
 
     public static RecipeAssembledEvent fromIngredients(SingleRecipeInput recipeInput, ItemStack output, RecipeType<?> recipeType) {
-        return new  RecipeAssembledEvent(List.of(recipeInput.item()),  output, recipeType);
+        return new RecipeAssembledEvent(List.of(recipeInput.item()),  output, recipeType);
+    }
+
+    public static RecipeAssembledEvent fromIngredient(ItemStack input, ItemStack output, RecipeType<?> recipeType) {
+        return new RecipeAssembledEvent(List.of(input),  output, recipeType);
     }
 
     public RecipeAssembledEvent(Collection<ItemStack> inputs, ItemStack output, RecipeType<?> recipeType) {

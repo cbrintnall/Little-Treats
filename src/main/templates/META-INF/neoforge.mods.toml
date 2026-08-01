@@ -35,6 +35,9 @@ config="${mod_id}.mixins.json"
 [[mixins]]
 config="${mod_id}.mixins.letsdo.json"
 
+[[mixins]]
+config="${mod_id}.mixins.farmersdelight.json"
+
 #[[accessTransformers]]
 #file="META-INF/accesstransformer.cfg"
 

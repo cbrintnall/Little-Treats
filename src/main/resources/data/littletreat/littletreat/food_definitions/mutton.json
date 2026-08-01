@@ -5,13 +5,13 @@
       "attribute": "puffish_attributes:armor_shred",
       "amount": 1.0,
       "op": "add_value",
-      "duration": 1000
+      "duration": 2000
     },
     {
       "attribute": "minecraft:generic.max_health",
       "amount": 1.0,
       "op": "add_value",
-      "duration": 1000
+      "duration": 2000
     }
   ]
 }

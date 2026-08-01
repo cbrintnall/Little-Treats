@@ -12,7 +12,6 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.fml.util.thread.EffectiveSide;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -38,6 +37,8 @@ public class RecipeProcessor {
                 .map(stack -> getModificationsFor(stack.getItemHolder()))
                 .flatMap(Collection::stream)
                 .toList();
+
+        if (modifiers.isEmpty()) return;
 
         modifiers = getFlattenModifiers(modifiers);
 

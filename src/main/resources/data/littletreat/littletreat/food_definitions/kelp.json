@@ -1,5 +1,5 @@
 {
-  "items": ["minecraft:dried_kelp"],
+  "items": ["minecraft:kelp"],
   "modifications": [
     {
       "attribute": "minecraft:generic.water_movement_efficiency",

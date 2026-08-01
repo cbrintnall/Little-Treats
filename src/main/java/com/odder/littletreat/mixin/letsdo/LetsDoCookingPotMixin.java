@@ -1,7 +1,6 @@
 package com.odder.littletreat.mixin.letsdo;
 
 import com.odder.littletreat.event.RecipeAssembledEvent;
-import com.odder.littletreat.processing.RecipeProcessor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
@@ -13,8 +12,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Arrays;
 
 @Mixin(CookingPotRecipe.class)
 public abstract class LetsDoCookingPotMixin {

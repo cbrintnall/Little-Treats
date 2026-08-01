@@ -11,6 +11,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import vectorwing.farmersdelight.common.registry.ModEffects;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,9 +51,20 @@ public class HealthRegen {
             ticksSinceDamage.put(player, nextAmount);
 
             int ticksPerRegen = Config.TICKS_PER_REGEN.get();
+
+            int baseTicksRequiredToRegen = Config.TICKS_TO_REGEN.get();
+
+            if (LittleTreat.FARMERS_DELIGHT_PRESENT) {
+                if (player.getEffect(ModEffects.NOURISHMENT) != null) {
+                    baseTicksRequiredToRegen = Math.round(ticksPerRegen*0.6f);
+                }
+            }
+
+            int requiredTicksToStartRegen = (baseTicksRequiredToRegen + ticksPerRegen);
+
             boolean canDoNaturalRegen =
                     event.getServer().getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)
-                    && currentAmount >= (Config.TICKS_TO_REGEN.get() + ticksPerRegen)
+                    && currentAmount >= requiredTicksToStartRegen
                     && Config.DISABLE_VANILLA_HUNGER.get();
 
             if (canDoNaturalRegen) {

@@ -1,9 +1,11 @@
 {
   "required": true,
-  "package": "com.odder.littletreat.mixin.letsdo",
+  "package": "com.odder.littletreat.mixin.farmersdelight",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "LetsDoRoasterBlockEntityMixin"
+    "CuttingBoardRecipeMixin",
+    "CookingPotRecipeMixin",
+    "DoughRecipeMixin"
   ],
   "injectors": {
     "defaultRequire": 1
