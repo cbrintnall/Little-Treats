@@ -2,10 +2,10 @@
   "items": "croptopia:tomato",
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
-      "op": "add_value",
-      "duration": 1200
+      "attribute": "puffish_attributes:melee_damage",
+      "amount": 0.1,
+      "op": "add_multiplied_total",
+      "duration": 2250
     }
   ]
 }

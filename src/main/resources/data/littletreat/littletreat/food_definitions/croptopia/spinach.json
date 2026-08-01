@@ -2,8 +2,8 @@
   "items": "croptopia:spinach",
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
+      "attribute": "puffish_attributes:mace_damage",
+      "amount": 0.3,
       "op": "add_value",
       "duration": 1200
     }

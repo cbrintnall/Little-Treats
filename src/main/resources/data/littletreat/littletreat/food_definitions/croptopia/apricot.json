@@ -1,5 +1,5 @@
 {
-  "items": "croptopia:apricot",
+  "items": ["croptopia:apricot", "croptopia:plum"],
   "modifications": [
     {
       "attribute": "minecraft:generic.armor",

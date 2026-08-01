@@ -1,11 +1,11 @@
 {
-  "items": "croptopia:lemon",
+  "items": ["croptopia:lemon", "croptopia:lime"],
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
-      "op": "add_value",
-      "duration": 1200
+      "attribute": "puffish_attributes:consuming_speed",
+      "amount": 2.0,
+      "op": "add_multiplied_total",
+      "duration": 200
     }
   ]
 }

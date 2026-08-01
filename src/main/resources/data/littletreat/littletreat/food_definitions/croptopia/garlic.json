@@ -2,10 +2,10 @@
   "items": "croptopia:garlic",
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
-      "op": "add_value",
-      "duration": 1200
+      "attribute": "puffish_attributes:magic_resistance",
+      "amount": 0.2,
+      "op": "add_multiplied_total",
+      "duration": 1500
     }
   ]
 }

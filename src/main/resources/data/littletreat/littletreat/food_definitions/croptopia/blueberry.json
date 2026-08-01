@@ -1,11 +1,11 @@
 {
-  "items": "croptopia:blueberry",
+  "items": ["croptopia:blueberry", "croptopia:cherry", "croptopia:cranberry", "croptopia:elderberry"],
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
+      "attribute": "minecraft:generic.knockback_resistance",
+      "amount": 1.0,
       "op": "add_value",
-      "duration": 1200
+      "duration": 600
     }
   ]
 }

@@ -2,9 +2,9 @@
   "items": "croptopia:chile_pepper",
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
-      "op": "add_value",
+      "attribute": "minecraft:generic.burning_time",
+      "amount": -0.15,
+      "op": "add_multiplied_base",
       "duration": 1200
     }
   ]

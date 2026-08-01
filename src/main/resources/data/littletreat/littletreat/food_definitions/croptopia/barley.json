@@ -1,5 +1,5 @@
 {
-  "items": "croptopia:barley",
+  "items": ["croptopia:barley", "croptopia:hops"],
   "modifications": [
     {
       "attribute": "puffish_attributes:mount_speed",

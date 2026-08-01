@@ -2,10 +2,10 @@
   "items": "croptopia:pecan",
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
-      "op": "add_value",
-      "duration": 1200
+      "attribute": "puffish_attributes:bow_projectile_speed",
+      "amount": 0.5,
+      "op": "add_multiplied_total",
+      "duration": 400
     }
   ]
 }

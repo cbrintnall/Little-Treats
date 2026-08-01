@@ -2,10 +2,16 @@
   "items": "croptopia:tuna",
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
+      "attribute": "minecraft:generic.max_health",
+      "amount": 2.0,
       "op": "add_value",
-      "duration": 1200
+      "duration": 800
+    },
+    {
+      "attribute": "puffish_attributes:melee_damage",
+      "amount": 2.0,
+      "op": "add_value",
+      "duration": 800
     }
   ]
 }

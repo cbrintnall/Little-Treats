@@ -2,10 +2,10 @@
   "items": "croptopia:mustard",
   "modifications": [
     {
-      "attribute": "minecraft:max_health",
-      "amount": 0.0,
+      "attribute": "puffish_attributes:resistance_shred",
+      "amount": 1.0,
       "op": "add_value",
-      "duration": 1200
+      "duration": 600
     }
   ]
 }

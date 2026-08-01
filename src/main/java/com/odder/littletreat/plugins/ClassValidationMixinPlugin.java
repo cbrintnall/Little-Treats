@@ -7,10 +7,10 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import java.util.List;
 import java.util.Set;
 
-public class LetsDoMixinPlugin implements IMixinConfigPlugin {
+public class ClassValidationMixinPlugin implements IMixinConfigPlugin {
     private static boolean isClassPresent(String className) {
         try {
-            Class.forName(className, false, LetsDoMixinPlugin.class.getClassLoader());
+            Class.forName(className, false, ClassValidationMixinPlugin.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {
             return false;
