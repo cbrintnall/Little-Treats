@@ -1,5 +1,5 @@
 {
-  "items": ["minecraft:porkchop", "minecraft:salmon", "minecraft:chicken"],
+  "items": ["minecraft:porkchop", "minecraft:salmon", "minecraft:chicken", "minecraft:beef"],
   "modifications": [
     {
       "attribute": "minecraft:generic.max_health",

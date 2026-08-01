@@ -1,5 +1,6 @@
 package com.odder.littletreat.mixin;
 
+import com.odder.littletreat.event.RecipeAssembledEvent;
 import com.odder.littletreat.processing.RecipeProcessor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +21,6 @@ public abstract class AbstractCookingRecipeMixin {
 
     @Inject(method = "assemble", at = @At("RETURN"), cancellable = true)
     private void propagate(SingleRecipeInput input, HolderLookup.Provider registries, CallbackInfoReturnable<ItemStack> ci) {
-        RecipeProcessor.INSTANCE.process(List.of(input.item()), ci.getReturnValue(), getType());
+        RecipeAssembledEvent.fromIngredients(input, ci.getReturnValue(), this.getType()).post();
     }
 }

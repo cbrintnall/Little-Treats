@@ -33,6 +33,18 @@ repositories {
         name = "ModMaven"
         url = "https://modmaven.dev"
     }
+    maven { url "https://maven.architectury.dev/" }
+    maven { url "https://maven.shedaniel.me/" }
+    exclusiveContent {
+        forRepository {
+            maven {
+                url "https://cursemaven.com"
+            }
+        }
+        filter {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 base {
@@ -89,12 +101,28 @@ configurations {
 }
 
 dependencies {
-    implementation "net.puffish:attributesmod:${attributes_version}:neoforge"
+    implementation "net.puffish:attributesmod:${attributes_version}+${minecraft_version_vague}:neoforge"
 
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    compileOnly "curse.maven:lets-do-vinery-704465:${lets_do_vinery_file_id}"
+    compileOnly "curse.maven:lets-do-farm-charm-1038103:${lets_do_farm_and_charm_file_id}"
+    compileOnly "dev.architectury:architectury-neoforge:${arch_version}"
+    compileOnly "curse.maven:farmers-delight-398521:${farmers_delight_file_id}"
 
     if (project.hasProperty("withJEI")) {
         localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    }
+
+    // will include ALL lets do mods
+    if (project.hasProperty("withLetsDo")) {
+        localRuntime "curse.maven:lets-do-vinery-704465:${lets_do_vinery_file_id}"
+        localRuntime "dev.architectury:architectury-neoforge:${arch_version}"
+//        localRuntime "curse.maven:lets-do-farm-charm-1038103:${lets_do_farm_and_charm_file_id}"
+        implementation files("../FarmAndCharm/neoforge/build/libs/letsdo-farm_and_charm-neoforge-1.1.23.jar")
+    }
+
+    if (project.hasProperty("withFarmers")) {
+        localRuntime "curse.maven:farmers-delight-398521:${farmers_delight_file_id}"
     }
 }
 
@@ -108,6 +136,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_name               : mod_name,
             mod_license            : mod_license,
             mod_version            : mod_version,
+            attributes_version     : attributes_version,
     ]
     inputs.properties replaceProperties
     expand replaceProperties

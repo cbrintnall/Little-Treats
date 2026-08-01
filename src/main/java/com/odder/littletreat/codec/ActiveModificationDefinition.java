@@ -2,27 +2,24 @@ package com.odder.littletreat.codec;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.odder.littletreat.LittleTreat;
 import com.odder.littletreat.init.Attachments;
 import com.odder.littletreat.payload.SyncModificationsPayload;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ActiveModificationDefinition{
     public static final StreamCodec<RegistryFriendlyByteBuf, ActiveModificationDefinition> STREAM_CODEC = StreamCodec.composite(
@@ -46,6 +43,18 @@ public class ActiveModificationDefinition{
         SyncModificationsPayload.syncToClient(player);
     }
 
+    public static void removeActiveModification(ActiveModificationDefinition modDef, ServerPlayer player){
+        var newSet = new ArrayList<>(player.getData(Attachments.ACTIVE_MODIFICATIONS));
+        if (newSet.remove(modDef)) {
+            for (AttributeModificationDefinition attrDef : modDef.defs()) {
+                AttributeInstance attr = player.getAttribute(attrDef.attribute());
+                attr.removeModifier(AttributeModificationDefinition.createIdFor(modDef.source, attrDef));
+            }
+            player.setData(Attachments.ACTIVE_MODIFICATIONS, newSet);
+            SyncModificationsPayload.syncToClient(player);
+        }
+    }
+
     public static void updateActiveModifications(Collection<ActiveModificationDefinition> mods, ServerPlayer player) {
         player.setData(Attachments.ACTIVE_MODIFICATIONS, mods.stream().toList());
         SyncModificationsPayload.syncToClient(player);
@@ -65,6 +74,16 @@ public class ActiveModificationDefinition{
         this.remainingTicks = remainingTicks;
 
         this.item = new ItemStack(BuiltInRegistries.ITEM.get(source.getKey().location()));
+    }
+
+    public Component getDisplay() {
+        MutableComponent base = Component.literal(source().getRegisteredName()).append(String.format("ticks=%d/%d", remainingTicks, maxDuration)).append(": ");
+
+        for(AttributeModificationDefinition attrDef : defs){
+            base.append(attrDef.format());
+        }
+
+        return base;
     }
 
     public float getRemainingPercent() {

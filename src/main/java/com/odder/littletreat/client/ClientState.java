@@ -61,7 +61,7 @@ public class ClientState {
         if (player == null || mc.options.hideGui) return;
 
         GuiGraphics gui = event.getGuiGraphics();
-        GuiDraw.drawActiveModifications(getActive(), gui, 4, 4);
+        GuiDraw.drawActiveModifications(getActive(), gui, 2, 2);
     }
 
     @SubscribeEvent
@@ -72,7 +72,7 @@ public class ClientState {
         if (mods.isEmpty()) return;
 
         for (AttributeModificationDefinition mod : mods) {
-            Component value = GuiDraw.formatModifier(mod.amount(), mod.op());
+            Component value = mod.format();
 
             event.getToolTip().add(
                     Component.translatable(mod.attribute().value().getDescriptionId()).append(": ").append(value));

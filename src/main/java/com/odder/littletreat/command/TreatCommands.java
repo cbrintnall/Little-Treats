@@ -2,6 +2,9 @@ package com.odder.littletreat.command;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.odder.littletreat.LittleTreat;
+import com.odder.littletreat.codec.ActiveModificationDefinition;
+import com.odder.littletreat.init.Attachments;
+import com.odder.littletreat.payload.SyncModificationsPayload;
 import com.odder.littletreat.processing.FoodDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -15,6 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.apache.logging.log4j.core.jmx.Server;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +33,21 @@ public class TreatCommands {
                         .then(getClearCommand())
                         .then(getAvailableAttributesCommand())
                         .then(getRegenAmountCommand())
+                        .then(getForceSyncCommand())
+                        .then(getDumpModificationsCommand())
         );
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> getDumpModificationsCommand() {
+        return Commands.literal("dumpmodifications")
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> dumpModifications(ctx.getSource(), EntityArgument.getPlayers(ctx, "targets"))));
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> getForceSyncCommand() {
+        return Commands.literal("forcesync")
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> forceSyncPlayers(ctx.getSource(), EntityArgument.getPlayers(ctx, "targets"))));
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> getClearCommand() {
@@ -49,6 +67,30 @@ public class TreatCommands {
         return Commands.literal("possibleregen")
                 .then(Commands.argument("targets", EntityArgument.entities())
                         .executes(ctx -> checkRegen(ctx.getSource(), EntityArgument.getPlayers(ctx, "targets"))));
+    }
+
+    private static int dumpModifications(CommandSourceStack src, Collection<ServerPlayer> players) {
+        for (ServerPlayer player : players) {
+            Collection<ActiveModificationDefinition> mods = player.getData(Attachments.ACTIVE_MODIFICATIONS);
+            Collection<Component> modComponents = mods.stream().map(ActiveModificationDefinition::getDisplay).toList();
+            var base = Component.empty().append(player.getDisplayName()).append(" has [");
+            for (Component component : modComponents) {
+                base.append(component).append(", ");
+            }
+            base.append("]");
+            src.sendSystemMessage(base);
+        }
+
+        return 0;
+    }
+
+    private static int forceSyncPlayers(CommandSourceStack src, Collection<ServerPlayer> players) {
+        for (ServerPlayer player : players) {
+            SyncModificationsPayload.syncToClient(player);
+            src.sendSystemMessage(Component.literal("Synced client ").append(player.getDisplayName()));
+        }
+
+        return 0;
     }
 
     private static int checkRegen(CommandSourceStack src, Collection<ServerPlayer> players) {

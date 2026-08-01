@@ -92,14 +92,12 @@ public class FoodDispatcher {
     }
 
     private void progressPlayerTicks(ServerPlayer player, int ticks) {
-        List<ActiveModificationDefinition> active = player.getData(Attachments.ACTIVE_MODIFICATIONS.get());
+        List<ActiveModificationDefinition> active = player.getData(Attachments.ACTIVE_MODIFICATIONS);
 
         for(ActiveModificationDefinition modification : active) {
-            boolean wasFinished = modification.isFinished();
-
             modification.progressTicks(ticks);
 
-            if (!wasFinished && modification.isFinished()) {
+            if (modification.isFinished()) {
                 removals.add(new Tuple<>(modification, player));
             }
         }
@@ -210,17 +208,7 @@ public class FoodDispatcher {
         var next = removals.poll();
 
         if (next != null){
-            ServerPlayer player = next.getB();
-            ActiveModificationDefinition modification = next.getA();
-            var newSet = new ArrayList<>(player.getData(Attachments.ACTIVE_MODIFICATIONS.get()));
-            newSet.remove(modification);
-            player.setData(Attachments.ACTIVE_MODIFICATIONS.get(), newSet);
-            for (AttributeModificationDefinition attrDef : modification.defs()) {
-                AttributeInstance attr = player.getAttribute(attrDef.attribute());
-                attr.removeModifier(AttributeModificationDefinition.createIdFor(modification.source, attrDef));
-            }
-
-            SyncModificationsPayload.syncToClient(player);
+            ActiveModificationDefinition.removeActiveModification(next.getA(), next.getB());
         }
     }
 }

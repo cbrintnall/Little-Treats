@@ -95,8 +95,7 @@ public class GuiDraw {
                 List<Component> modifiers = activeModificationDefinition.defs
                         .stream()
                         .<Component>map(def -> {
-                            var amountComponent = formatModifier(def.amount(), def.op());
-                            return Component.translatable(def.attribute().value().getDescriptionId()).append(": ").append(amountComponent);
+                            return Component.translatable(def.attribute().value().getDescriptionId()).append(": ").append(def.format());
                         })
                         .toList();
 
@@ -105,26 +104,6 @@ public class GuiDraw {
 
             trackingY += k;
         }
-    }
-
-    public static Component formatModifier(double amount, AttributeModifier.Operation op) {
-        double display;
-        boolean percent;
-
-        switch (op) {
-            case ADD_MULTIPLIED_BASE, ADD_MULTIPLIED_TOTAL -> {
-                display = amount * 100.0;
-                percent = true;
-            }
-            default -> { display = amount; percent = false; }
-        }
-
-        boolean positive = display >= 0;
-        String number = FORMAT.format(display);
-        String text = (positive ? "+" : "") + number + (percent ? "%" : "");
-
-        return Component.literal(text)
-                .withStyle(positive ? ChatFormatting.BLUE : ChatFormatting.RED);
     }
 
     private static boolean isMouseHoveringStatus(int mouseX, int mouseY, int x, int y, boolean drawLarge) {
@@ -147,10 +126,6 @@ public class GuiDraw {
         GuiDraw.drawDurationBar(gfx, x+2, y + 20, def.getRemainingPercent(), 20);
         return BACKGROUND_SPRITE_SIZE + Config.EFFECT_MARGIN.get();
     }
-
-    private static final DecimalFormat FORMAT = Util.make(
-            new DecimalFormat("#.##"),
-            f -> f.setDecimalSeparatorAlwaysShown(false));
 
     private static void renderBackgrounds(GuiGraphics guiGraphics, int renderX, int yOffset, Iterable<ActiveModificationDefinition> mods, boolean isSmall, int topPos) {
         int i = topPos;

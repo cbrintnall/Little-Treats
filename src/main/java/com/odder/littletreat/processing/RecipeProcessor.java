@@ -3,6 +3,7 @@ package com.odder.littletreat.processing;
 import com.odder.littletreat.LittleTreat;
 import com.odder.littletreat.codec.AttributeModificationDefinition;
 import com.odder.littletreat.codec.FoodDefinition;
+import com.odder.littletreat.event.RecipeAssembledEvent;
 import com.odder.littletreat.init.DataComponents;
 import com.odder.littletreat.init.Registries;
 import net.minecraft.core.Holder;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.fml.util.thread.EffectiveSide;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -24,7 +26,11 @@ import java.util.stream.Collectors;
 public class RecipeProcessor {
     public static RecipeProcessor INSTANCE = new RecipeProcessor();
 
-    public void process(Collection<ItemStack> inputs, ItemStack output, RecipeType<?> type) {
+    public void onRecipeAssembledEvent(RecipeAssembledEvent event) {
+        process(event.getInputs(), event.getOutput(), event.getRecipeType());
+    }
+
+    private void process(Collection<ItemStack> inputs, ItemStack output, RecipeType<?> type) {
         if (EffectiveSide.get().isClient()) return;
 
         var modifiers = inputs
