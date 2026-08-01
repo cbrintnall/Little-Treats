@@ -31,11 +31,11 @@ public class RecipeProcessor {
     }
 
     private void process(Collection<ItemStack> inputs, ItemStack output, RecipeType<?> type) {
-        if (EffectiveSide.get().isClient()) return;
+        if (EffectiveSide.get().isClient() || output.isEmpty()) return;
 
         var modifiers = inputs
                 .stream()
-                .map(stack -> getModificationsFor(stack.getItemHolder()))
+                .map(FoodDispatcher::collectModifications)
                 .flatMap(Collection::stream)
                 .toList();
 
@@ -47,7 +47,7 @@ public class RecipeProcessor {
                 "Created item {} from {} with modifications: {}",
                 output.getDisplayName().getString(),
                 type,
-                modifiers.stream().map(mod -> mod.attribute().getKey().location().toLanguageKey()).collect(Collectors.joining())
+                modifiers.stream().map(mod -> mod.attribute().getRegisteredName()).collect(Collectors.joining())
         );
     }
 
