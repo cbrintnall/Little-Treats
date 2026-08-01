@@ -176,6 +176,7 @@ public class FoodDispatcher {
         }
 
         List<AttributeModificationDefinition> modifications = collectModifications(event.getItem());
+        if (modifications.isEmpty()) return;
 
         applyModifications(
                 event.getItem().getItemHolder(),
