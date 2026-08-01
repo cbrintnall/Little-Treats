@@ -48,7 +48,9 @@ public class ActiveModificationDefinition{
         if (newSet.remove(modDef)) {
             for (AttributeModificationDefinition attrDef : modDef.defs()) {
                 AttributeInstance attr = player.getAttribute(attrDef.attribute());
-                attr.removeModifier(AttributeModificationDefinition.createIdFor(modDef.source, attrDef));
+                if (attr != null) {
+                    attr.removeModifier(AttributeModificationDefinition.createIdFor(modDef.source, attrDef));
+                }
             }
             player.setData(Attachments.ACTIVE_MODIFICATIONS, newSet);
             SyncModificationsPayload.syncToClient(player);
