@@ -135,6 +135,10 @@ public class FoodDispatcher {
 
     @SubscribeEvent
     private void onStart(PlayerInteractEvent.RightClickItem event) {
+        if (collectModifications(event.getItemStack()).isEmpty()) {
+            return;
+        }
+
         Collection<ActiveModificationDefinition> mods = EffectiveSide.get().isClient()
                 ? ClientState.INSTANCE.getActive()
                 : event.getEntity().getData(Attachments.ACTIVE_MODIFICATIONS);
