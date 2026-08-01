@@ -1,0 +1,11 @@
+{
+  "items": "croptopia:nectarine",
+  "modifications": [
+    {
+      "attribute": "minecraft:generic.armor_toughness",
+      "amount": 1.0,
+      "op": "add_value",
+      "duration": 800
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "items": ["croptopia:almond", "croptopia:cashew", "croptopia:peanut"],
+  "modifications": [
+    {
+      "attribute": "puffish_attributes:tamed_damage",
+      "amount": 0.0,
+      "op": "add_value",
+      "duration": 300
+    }
+  ]
+}

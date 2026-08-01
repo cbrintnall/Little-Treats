@@ -1,0 +1,11 @@
+{
+  "items": "croptopia:cucumber",
+  "modifications": [
+    {
+      "attribute": "minecraft:max_health",
+      "amount": 0.0,
+      "op": "add_value",
+      "duration": 1200
+    }
+  ]
+}

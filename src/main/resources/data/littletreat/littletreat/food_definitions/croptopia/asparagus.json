@@ -1,0 +1,11 @@
+{
+  "items": "croptopia:asparagus",
+  "modifications": [
+    {
+      "attribute": "puffish_attributes:jump",
+      "amount": 0.5,
+      "op": "add_multiplied_total",
+      "duration": 1500
+    }
+  ]
+}

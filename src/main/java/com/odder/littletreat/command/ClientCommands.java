@@ -33,6 +33,12 @@ public class ClientCommands {
             TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "fruits"))
     ));
 
+    private static final HashSet<String> narrowedNamespace = new HashSet<>(List.of("croptopia", "farmersdelight"));
+
+    private static final HashSet<TagKey<Item>> blockedTags = new HashSet<>(List.of(
+            TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("farmersdelight", "feasts"))
+    ));
+
     @SubscribeEvent
     private static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
         event.getDispatcher().register(
@@ -80,13 +86,15 @@ public class ClientCommands {
         List<String> missing = new ArrayList<>();
 
         for (Holder<Item> holder : items) {
+            if (holder.tags().anyMatch(blockedTags::contains)) continue;
+
             Item item = holder.value();
             ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
 
             boolean hasStat = coveredItems.contains(item);
             boolean hasRecipe = hasAnyRecipeOutputting(item, recipes, access);
 
-            if (!hasStat && !hasRecipe) {
+            if (!hasStat && !hasRecipe && narrowedNamespace.contains(id.getNamespace())) {
                 missing.add(id.toString());
             }
         }
@@ -124,6 +132,14 @@ public class ClientCommands {
             Path filePath = writeDir.resolve( loc.getPath().replace(':', '_').replace('/', '_') + ".json");
 
             try {
+                if (!Files.exists(writeDir)) {
+                    Files.createDirectory(writeDir);
+                }
+
+                if (!Files.exists(filePath)) {
+                    Files.createFile(filePath);
+                }
+
                 Files.writeString(filePath, fileTemplate.formatted(s));
             } catch (IOException e) {
                 throw new RuntimeException(e);

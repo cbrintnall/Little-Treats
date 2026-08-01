@@ -1,0 +1,11 @@
+{
+  "items": "croptopia:apricot",
+  "modifications": [
+    {
+      "attribute": "minecraft:generic.armor",
+      "amount": 3.0,
+      "op": "add_value",
+      "duration": 600
+    }
+  ]
+}

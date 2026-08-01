@@ -1,0 +1,17 @@
+{
+  "items": "croptopia:barley",
+  "modifications": [
+    {
+      "attribute": "puffish_attributes:mount_speed",
+      "amount": 0.2,
+      "op": "add_multiplied_total",
+      "duration": 2000
+    },
+    {
+      "attribute": "minecraft:generic.movement_speed",
+      "amount": -0.2,
+      "op": "add_multiplied_total",
+      "duration": 2000
+    }
+  ]
+}
