@@ -46,6 +46,9 @@ public class GuiDraw {
 
     public static void drawActiveModifications(Collection<ActiveModificationDefinition> mods, GuiGraphics gfx, int x, int y) {
         for(ActiveModificationDefinition activeModificationDefinition : mods) {
+            // client state can get stale, skip drawing anything under zero (local state will be eventually correct)
+            if (activeModificationDefinition.remainingTicks < 0) continue;
+
             y += drawActiveModification(gfx, activeModificationDefinition, x, y);
         }
     }

@@ -1,5 +1,6 @@
 package com.odder.littletreat.processing;
 
+import com.google.common.eventbus.Subscribe;
 import com.odder.littletreat.Config;
 import com.odder.littletreat.LittleTreat;
 import com.odder.littletreat.client.ClientState;
@@ -14,22 +15,28 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.util.thread.EffectiveSide;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.satisfy.vinery.core.util.FoodComponent;
 
 import java.util.*;
 
@@ -51,6 +58,18 @@ public class FoodDispatcher {
         }
 
         modifications.addAll(eaten.getOrDefault(DataComponents.INHERITED_MODIFICATIONS, Collections.emptyList()));
+
+        if (modifications.isEmpty()) {
+            var food = eaten.get(net.minecraft.core.component.DataComponents.FOOD);
+            if (food != null) {
+                modifications.add(new AttributeModificationDefinition(
+                        Attributes.MAX_HEALTH,
+                        Math.max(Math.round(food.saturation()*0.5f), 1),
+                        AttributeModifier.Operation.ADD_VALUE,
+                        Math.min(food.nutrition()*1200, 9600)
+                ));
+            }
+        }
 
         return modifications;
     }
@@ -135,6 +154,8 @@ public class FoodDispatcher {
 
     @SubscribeEvent
     private void onStart(PlayerInteractEvent.RightClickItem event) {
+        if (event.getItemStack().get(net.minecraft.core.component.DataComponents.FOOD) == null) return;
+
         Collection<ActiveModificationDefinition> mods = EffectiveSide.get().isClient()
                 ? ClientState.INSTANCE.getActive()
                 : event.getEntity().getData(Attachments.ACTIVE_MODIFICATIONS);
@@ -153,6 +174,7 @@ public class FoodDispatcher {
     @SubscribeEvent
     private void onFinish(LivingEntityUseItemEvent.Finish event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
+        if (event.getItem().get(net.minecraft.core.component.DataComponents.FOOD) == null) return;
 
         ActiveModificationDefinition activeMod = getActiveModificationForFood(event.getItem().getItemHolder(), serverPlayer);
 
@@ -201,6 +223,13 @@ public class FoodDispatcher {
         }
 
         SyncModificationsPayload.syncToClient(serverPlayer);
+    }
+
+    @SubscribeEvent
+    private void onPlayerDie(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
+
+        ActiveModificationDefinition.updateActiveModifications(new ArrayList<>(), serverPlayer);
     }
 
     @SubscribeEvent

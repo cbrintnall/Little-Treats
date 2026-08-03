@@ -26,6 +26,7 @@ public class RecipeProcessor {
     public static RecipeProcessor INSTANCE = new RecipeProcessor();
 
     public void onRecipeAssembledEvent(RecipeAssembledEvent event) {
+        if (event.getOutput().get(net.minecraft.core.component.DataComponents.FOOD) == null) return;
         process(event.getInputs(), event.getOutput(), event.getRecipeType());
     }
 
@@ -37,8 +38,6 @@ public class RecipeProcessor {
                 .map(stack -> getModificationsFor(stack.getItemHolder()))
                 .flatMap(Collection::stream)
                 .toList();
-
-        if (modifiers.isEmpty()) return;
 
         modifiers = getFlattenModifiers(modifiers);
 

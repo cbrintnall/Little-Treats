@@ -2,6 +2,7 @@ package com.odder.littletreat.codec;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.odder.littletreat.Config;
 import com.odder.littletreat.init.Attachments;
 import com.odder.littletreat.payload.SyncModificationsPayload;
 import net.minecraft.core.Holder;
@@ -70,7 +71,7 @@ public class ActiveModificationDefinition{
     public ActiveModificationDefinition(Holder<Item> source, Collection<AttributeModificationDefinition> defs, int remainingTicks) {
         this.source = source;
         this.defs = defs.stream().toList();
-        this.maxDuration = AttributeModificationDefinition.getMaxDuration(defs);
+        this.maxDuration = Math.toIntExact(Math.round(AttributeModificationDefinition.getMaxDuration(defs) * Config.GLOBAL_TIME_MULTIPLIER.get()));
         this.remainingTicks = remainingTicks;
 
         this.item = new ItemStack(BuiltInRegistries.ITEM.get(source.getKey().location()));
