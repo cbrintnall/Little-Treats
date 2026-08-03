@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:rotten_flesh"],
+  "items": [
+    "minecraft:rotten_flesh"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.max_health",
-      "amount": -2.0,
+      "amount": -2,
       "op": "add_value",
-      "duration": 500
+      "duration": 1200
     }
   ]
 }

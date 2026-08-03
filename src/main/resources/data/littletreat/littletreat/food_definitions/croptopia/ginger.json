@@ -5,7 +5,7 @@
       "attribute": "puffish_attributes:ranged_resistance",
       "amount": 0.2,
       "op": "add_multiplied_total",
-      "duration": 1500
+      "duration": 3600
     }
   ]
 }

@@ -1,11 +1,15 @@
 {
-  "items": ["croptopia:cinnamon", "croptopia:cinnamon_sapling", "croptopia:nutmeg"],
+  "items": [
+    "croptopia:cinnamon",
+    "croptopia:cinnamon_sapling",
+    "croptopia:nutmeg"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:knockback",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_value",
-      "duration": 600
+      "duration": 3600
     }
   ]
 }

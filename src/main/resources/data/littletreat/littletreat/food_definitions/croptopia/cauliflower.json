@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:cauliflower", "croptopia:rutabaga"],
+  "items": [
+    "croptopia:cauliflower",
+    "croptopia:rutabaga"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:ranged_damage",
-      "amount": 3.0,
+      "amount": 3,
       "op": "add_value",
-      "duration": 800
+      "duration": 3600
     }
   ]
 }

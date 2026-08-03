@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:potato"],
+  "items": [
+    "minecraft:potato"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:pickaxe_speed",
       "amount": 0.1,
       "op": "add_multiplied_base",
-      "duration": 1000
+      "duration": 3600
     }
   ]
 }

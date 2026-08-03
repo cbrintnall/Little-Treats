@@ -3,9 +3,9 @@
   "modifications": [
     {
       "attribute": "puffish_attributes:axe_damage",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 3500
+      "duration": 10800
     }
   ]
 }

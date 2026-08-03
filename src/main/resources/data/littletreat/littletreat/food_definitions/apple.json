@@ -1,17 +1,19 @@
 {
-  "items": ["minecraft:apple"],
+  "items": [
+    "minecraft:apple"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:healing",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_value",
-      "duration": 1250
+      "duration": 3600
     },
     {
       "attribute": "puffish_attributes:magic_resistance",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_value",
-      "duration": 1250
+      "duration": 3600
     }
   ]
 }

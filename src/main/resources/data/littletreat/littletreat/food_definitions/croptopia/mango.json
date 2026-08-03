@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:mango", "croptopia:persimmon"],
+  "items": [
+    "croptopia:mango",
+    "croptopia:persimmon"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:armor_shred",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 2000
+      "duration": 7200
     }
   ]
 }

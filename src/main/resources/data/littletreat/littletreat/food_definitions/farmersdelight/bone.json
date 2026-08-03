@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:bone"],
+  "items": [
+    "minecraft:bone"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:melee_resistance",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 2250
+      "duration": 7200
     }
   ]
 }

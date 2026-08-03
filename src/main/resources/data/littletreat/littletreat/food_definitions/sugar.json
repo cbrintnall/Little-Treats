@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:sugar"],
+  "items": [
+    "minecraft:sugar"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.movement_speed",
       "amount": 0.1,
       "op": "add_multiplied_base",
-      "duration": 1500
+      "duration": 3600
     }
   ]
 }

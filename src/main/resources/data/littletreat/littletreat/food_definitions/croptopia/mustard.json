@@ -3,9 +3,9 @@
   "modifications": [
     {
       "attribute": "puffish_attributes:resistance_shred",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_value",
-      "duration": 600
+      "duration": 3600
     }
   ]
 }

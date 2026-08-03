@@ -1,23 +1,25 @@
 {
-  "items": ["minecraft:spider_eye"],
+  "items": [
+    "minecraft:spider_eye"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.scale",
       "amount": -0.4,
       "op": "add_multiplied_base",
-      "duration": 250
+      "duration": 1200
     },
     {
       "attribute": "minecraft:player.sneaking_speed",
       "amount": 0.4,
       "op": "add_value",
-      "duration": 250
+      "duration": 1200
     },
     {
       "attribute": "minecraft:generic.max_health",
-      "amount": -4.0,
+      "amount": -4,
       "op": "add_value",
-      "duration": 250
+      "duration": 1200
     }
   ]
 }

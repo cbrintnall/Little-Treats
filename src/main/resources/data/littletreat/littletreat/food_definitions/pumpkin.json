@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:pumpkin"],
+  "items": [
+    "minecraft:pumpkin"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.knockback_resistance",
       "amount": 0.15,
       "op": "add_multiplied_base",
-      "duration": 2500
+      "duration": 7200
     }
   ]
 }

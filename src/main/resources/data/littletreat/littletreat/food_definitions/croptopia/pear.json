@@ -3,9 +3,9 @@
   "modifications": [
     {
       "attribute": "puffish_attributes:healing",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 1250
+      "duration": 3600
     }
   ]
 }

@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:milk_bucket"],
+  "items": [
+    "minecraft:milk_bucket"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:natural_regeneration",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_value",
-      "duration": 1000
+      "duration": 3600
     }
   ]
 }

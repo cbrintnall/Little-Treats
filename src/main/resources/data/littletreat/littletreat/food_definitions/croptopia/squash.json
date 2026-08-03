@@ -3,9 +3,9 @@
   "modifications": [
     {
       "attribute": "minecraft:generic.armor",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 2000
+      "duration": 7200
     }
   ]
 }

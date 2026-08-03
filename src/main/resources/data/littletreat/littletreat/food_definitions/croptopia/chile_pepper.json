@@ -5,7 +5,7 @@
       "attribute": "minecraft:generic.burning_time",
       "amount": -0.15,
       "op": "add_multiplied_base",
-      "duration": 1200
+      "duration": 3600
     }
   ]
 }

@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:orange", "croptopia:kumquat"],
+  "items": [
+    "croptopia:orange",
+    "croptopia:kumquat"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:magic_damage",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 1800
+      "duration": 7200
     }
   ]
 }

@@ -5,7 +5,7 @@
       "attribute": "puffish_attributes:melee_damage",
       "amount": 0.1,
       "op": "add_multiplied_total",
-      "duration": 2250
+      "duration": 7200
     }
   ]
 }

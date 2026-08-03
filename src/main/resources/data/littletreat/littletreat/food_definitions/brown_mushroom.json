@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:brown_mushroom"],
+  "items": [
+    "minecraft:brown_mushroom"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:melee_resistance",
       "amount": 0.5,
       "op": "add_value",
-      "duration": 1500
+      "duration": 3600
     }
   ]
 }

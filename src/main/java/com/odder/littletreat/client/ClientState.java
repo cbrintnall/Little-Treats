@@ -4,11 +4,13 @@ import com.odder.littletreat.Config;
 import com.odder.littletreat.codec.ActiveModificationDefinition;
 import com.odder.littletreat.codec.AttributeModificationDefinition;
 import com.odder.littletreat.processing.FoodDispatcher;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.*;
@@ -74,8 +76,9 @@ public class ClientState {
         for (AttributeModificationDefinition mod : mods) {
             Component value = mod.format();
 
+            String time = StringUtil.formatTickDuration(mod.duration(), Minecraft.getInstance().level.tickRateManager().tickrate());
             event.getToolTip().add(
-                    Component.translatable(mod.attribute().value().getDescriptionId()).append(": ").append(value));
+                    Component.translatable(mod.attribute().value().getDescriptionId()).append(": ").append(value).append(Component.literal(String.format(" (%s)", time)).withStyle(ChatFormatting.GRAY)));
         }
     }
 }

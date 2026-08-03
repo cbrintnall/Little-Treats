@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:egg"],
+  "items": [
+    "minecraft:egg"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:fall_reduction",
       "amount": 0.2,
       "op": "add_multiplied_base",
-      "duration": 1500
+      "duration": 3600
     }
   ]
 }

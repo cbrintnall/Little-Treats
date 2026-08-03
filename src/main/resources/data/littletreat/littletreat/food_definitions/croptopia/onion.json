@@ -5,7 +5,7 @@
       "attribute": "puffish_attributes:mining_speed",
       "amount": 0.1,
       "op": "add_multiplied_total",
-      "duration": 3500
+      "duration": 10800
     }
   ]
 }

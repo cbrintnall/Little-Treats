@@ -3,9 +3,9 @@
   "modifications": [
     {
       "attribute": "minecraft:generic.armor_toughness",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 400
+      "duration": 3600
     }
   ]
 }

@@ -5,7 +5,7 @@
       "attribute": "puffish_attributes:mace_damage",
       "amount": 0.3,
       "op": "add_value",
-      "duration": 1200
+      "duration": 3600
     }
   ]
 }

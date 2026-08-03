@@ -2,9 +2,9 @@
   "items": "croptopia:peach",
   "modifications": [
     {
-      "amount": 3.0,
+      "amount": 3,
       "attribute": "minecraft:generic.armor",
-      "duration": 1000,
+      "duration": 3600,
       "op": "add_value"
     }
   ]

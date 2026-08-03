@@ -3,9 +3,9 @@
   "modifications": [
     {
       "attribute": "puffish_attributes:jump",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_multiplied_total",
-      "duration": 1000
+      "duration": 3600
     }
   ]
 }

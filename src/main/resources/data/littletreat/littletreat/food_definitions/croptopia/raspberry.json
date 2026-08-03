@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:raspberry", "croptopia:rhubarb"],
+  "items": [
+    "croptopia:raspberry",
+    "croptopia:rhubarb"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:natural_regeneration",
-      "amount": 4.0,
+      "amount": 4,
       "op": "add_value",
-      "duration": 400
+      "duration": 3600
     }
   ]
 }

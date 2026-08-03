@@ -5,7 +5,7 @@
       "attribute": "puffish_attributes:trident_damage",
       "amount": 0.75,
       "op": "add_multiplied_total",
-      "duration": 600
+      "duration": 3600
     }
   ]
 }

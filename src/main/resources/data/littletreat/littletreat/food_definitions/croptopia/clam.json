@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:clam", "croptopia:coconut"],
+  "items": [
+    "croptopia:clam",
+    "croptopia:coconut"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.explosion_knockback_resistance",
       "amount": 0.2,
       "op": "add_value",
-      "duration": 2000
+      "duration": 7200
     }
   ]
 }

@@ -1,11 +1,16 @@
 {
-  "items": ["croptopia:cantaloupe", "croptopia:honeydew", "croptopia:dragonfruit", "croptopia:starfruit"],
+  "items": [
+    "croptopia:cantaloupe",
+    "croptopia:honeydew",
+    "croptopia:dragonfruit",
+    "croptopia:starfruit"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.max_health",
-      "amount": 4.0,
+      "amount": 4,
       "op": "add_value",
-      "duration": 1000
+      "duration": 3600
     }
   ]
 }

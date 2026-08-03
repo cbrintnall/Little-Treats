@@ -1,11 +1,13 @@
 {
-  "items": ["farmersdelight:cabbage"],
+  "items": [
+    "farmersdelight:cabbage"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:resistance",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_value",
-      "duration": 2250
+      "duration": 7200
     }
   ]
 }

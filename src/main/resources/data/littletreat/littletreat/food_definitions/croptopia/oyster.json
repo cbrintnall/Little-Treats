@@ -5,7 +5,7 @@
       "attribute": "puffish_attributes:resistance",
       "amount": 0.25,
       "op": "add_multiplied_total",
-      "duration": 1600
+      "duration": 3600
     }
   ]
 }

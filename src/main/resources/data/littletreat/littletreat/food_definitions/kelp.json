@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:kelp"],
+  "items": [
+    "minecraft:kelp"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.water_movement_efficiency",
       "amount": 0.15,
       "op": "add_value",
-      "duration": 1500
+      "duration": 3600
     }
   ]
 }

@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:date", "croptopia:fig"],
+  "items": [
+    "croptopia:date",
+    "croptopia:fig"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:resistance",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_value",
-      "duration": 800
+      "duration": 3600
     }
   ]
 }

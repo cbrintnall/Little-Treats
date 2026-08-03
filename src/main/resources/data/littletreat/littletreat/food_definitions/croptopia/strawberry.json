@@ -1,11 +1,15 @@
 {
-  "items": ["croptopia:strawberry", "croptopia:sweetpotato", "croptopia:yam"],
+  "items": [
+    "croptopia:strawberry",
+    "croptopia:sweetpotato",
+    "croptopia:yam"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.attack_speed",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 800
+      "duration": 3600
     }
   ]
 }

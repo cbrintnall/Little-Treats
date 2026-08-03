@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:greenonion", "croptopia:leek"],
+  "items": [
+    "croptopia:greenonion",
+    "croptopia:leek"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:life_steal",
       "amount": 0.1,
       "op": "add_multiplied_base",
-      "duration": 800
+      "duration": 3600
     }
   ]
 }

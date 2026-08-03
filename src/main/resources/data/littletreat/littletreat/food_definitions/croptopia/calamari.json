@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:calamari", "croptopia:glowing_calamari"],
+  "items": [
+    "croptopia:calamari",
+    "croptopia:glowing_calamari"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.water_movement_efficiency",
       "amount": 0.333,
       "op": "add_value",
-      "duration": 2000
+      "duration": 7200
     }
   ]
 }

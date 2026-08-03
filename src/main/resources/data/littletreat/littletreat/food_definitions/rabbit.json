@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:rabbit"],
+  "items": [
+    "minecraft:rabbit"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:trident_damage",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 3500
+      "duration": 10800
     }
   ]
 }

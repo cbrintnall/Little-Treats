@@ -3,9 +3,9 @@
   "modifications": [
     {
       "attribute": "puffish_attributes:consuming_speed",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_multiplied_base",
-      "duration": 600
+      "duration": 3600
     }
   ]
 }

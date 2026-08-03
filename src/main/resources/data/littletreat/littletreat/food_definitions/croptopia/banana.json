@@ -5,7 +5,7 @@
       "attribute": "puffish_attributes:sprinting_speed",
       "amount": 0.5,
       "op": "add_multiplied_total",
-      "duration": 1000
+      "duration": 3600
     }
   ]
 }

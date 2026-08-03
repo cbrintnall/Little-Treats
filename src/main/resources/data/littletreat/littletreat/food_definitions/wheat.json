@@ -1,11 +1,13 @@
 {
-  "items": ["minecraft:wheat"],
+  "items": [
+    "minecraft:wheat"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:mount_speed",
       "amount": 0.1,
       "op": "add_multiplied_base",
-      "duration": 2000
+      "duration": 7200
     }
   ]
 }

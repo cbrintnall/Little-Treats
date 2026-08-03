@@ -3,9 +3,9 @@
   "modifications": [
     {
       "attribute": "minecraft:generic.max_health",
-      "amount": 1.0,
+      "amount": 1,
       "op": "add_value",
-      "duration": 5000
+      "duration": 14400
     }
   ]
 }

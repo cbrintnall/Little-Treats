@@ -1,11 +1,13 @@
 {
-  "items": ["farmersdelight:rice_panicle"],
+  "items": [
+    "farmersdelight:rice_panicle"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:fortune",
       "amount": 0.5,
       "op": "add_value",
-      "duration": 2500
+      "duration": 7200
     }
   ]
 }

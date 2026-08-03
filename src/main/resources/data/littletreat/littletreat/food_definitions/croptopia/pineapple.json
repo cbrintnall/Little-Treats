@@ -5,7 +5,7 @@
       "attribute": "puffish_attributes:melee_resistance_shred",
       "amount": 0.5,
       "op": "add_value",
-      "duration": 2500
+      "duration": 7200
     }
   ]
 }

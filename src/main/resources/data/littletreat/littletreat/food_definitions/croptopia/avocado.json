@@ -2,9 +2,9 @@
   "items": "croptopia:avocado",
   "modifications": [
     {
-      "amount": 4.0,
+      "amount": 4,
       "attribute": "minecraft:generic.armor",
-      "duration": 400,
+      "duration": 3600,
       "op": "add_value"
     }
   ]

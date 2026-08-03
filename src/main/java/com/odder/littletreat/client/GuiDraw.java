@@ -65,7 +65,11 @@ public class GuiDraw {
         }
 
         Collection<MobEffectInstance> effects = Minecraft.getInstance().player.getActiveEffects();
-        int top = screen.getGuiTop() + effects.size() * 33;
+        int top = screen.getGuiTop();
+
+        if (!Config.IGNORE_POTION_RENDERING.get()) {
+            top += effects.size() * 33;
+        }
 
         drawLarge = !event.isCompact();
         x = event.getHorizontalOffset();
@@ -75,7 +79,7 @@ public class GuiDraw {
             k = 132 / (mods.size()-1);
         }
 
-        if (!mods.isEmpty() && !effects.isEmpty()) {
+        if (!mods.isEmpty() && !effects.isEmpty() && !Config.IGNORE_POTION_RENDERING.get()) {
             top += 2;
             int sepWidth = drawLarge ? 120 : 32;
             gfx.blit(HEADER_SEPARATOR, x, top, 0, 0, sepWidth, 2, 32, 2);
@@ -94,9 +98,7 @@ public class GuiDraw {
             if (isMouseHoveringStatus(mouseX, mouseY, x, trackingY, drawLarge)) {
                 List<Component> modifiers = activeModificationDefinition.defs
                         .stream()
-                        .<Component>map(def -> {
-                            return Component.translatable(def.attribute().value().getDescriptionId()).append(": ").append(def.format());
-                        })
+                        .<Component>map(def -> Component.translatable(def.attribute().value().getDescriptionId()).append(": ").append(def.format()))
                         .toList();
 
                 gfx.renderTooltip(Minecraft.getInstance().font, modifiers, Optional.empty(), mouseX, mouseY);

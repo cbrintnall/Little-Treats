@@ -1,11 +1,14 @@
 {
-  "items": ["croptopia:eggplant", "croptopia:grapefruit"],
+  "items": [
+    "croptopia:eggplant",
+    "croptopia:grapefruit"
+  ],
   "modifications": [
     {
       "attribute": "puffish_attributes:crossbow_projectile_speed",
       "amount": 0.25,
       "op": "add_multiplied_total",
-      "duration": 800
+      "duration": 3600
     }
   ]
 }

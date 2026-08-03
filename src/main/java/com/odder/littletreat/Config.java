@@ -10,6 +10,8 @@ public class Config {
     public static final ModConfigSpec.IntValue ALLOWED_EFFECT_COUNT = BUILDER.defineInRange("allowedEffectCount", 3, 0, Integer.MAX_VALUE);
     public static final ModConfigSpec.IntValue TICKS_TO_REGEN = BUILDER.defineInRange("ticksToRegen", 30 * 20, 1, Integer.MAX_VALUE);
     public static final ModConfigSpec.IntValue TICKS_PER_REGEN = BUILDER.defineInRange("ticksPerRegen", 80, 1, Integer.MAX_VALUE);
+    public static final ModConfigSpec.DoubleValue GLOBAL_TIME_MULTIPLIER = BUILDER.defineInRange("globalTimeMultiplier", 1.0, 0.0, Double.MAX_VALUE);
+    public static final ModConfigSpec.BooleanValue IGNORE_POTION_RENDERING = BUILDER.define("ignorePotionRendering", false);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 }

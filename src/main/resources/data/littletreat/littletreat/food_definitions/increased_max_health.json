@@ -1,11 +1,16 @@
 {
-  "items": ["minecraft:porkchop", "minecraft:salmon", "minecraft:chicken", "minecraft:beef"],
+  "items": [
+    "minecraft:porkchop",
+    "minecraft:salmon",
+    "minecraft:chicken",
+    "minecraft:beef"
+  ],
   "modifications": [
     {
       "attribute": "minecraft:generic.max_health",
-      "amount": 2.0,
+      "amount": 2,
       "op": "add_value",
-      "duration": 2750
+      "duration": 7200
     }
   ]
 }
