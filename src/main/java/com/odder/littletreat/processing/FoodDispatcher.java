@@ -44,11 +44,15 @@ public class FoodDispatcher {
     public static List<AttributeModificationDefinition> collectModifications(ItemStack eaten) {
         List<AttributeModificationDefinition> modifications = new ArrayList<>();
 
-        ResourceLocation loc = eaten.getItemHolder().getKey().location();
-        if (INSTANCE.cachedDefinitions.containsKey(loc)) {
-            var definitions = INSTANCE.cachedDefinitions.get(loc);
-            modifications.addAll(definitions.stream().map(FoodDefinition::modifications).flatMap(Collection::stream).toList());
-        }
+        if (eaten == null || eaten.isEmpty()) return modifications;
+
+        eaten.getItemHolder().unwrapKey().ifPresent(key -> {
+            ResourceLocation loc = key.location();
+            if (INSTANCE.cachedDefinitions.containsKey(loc)) {
+                var definitions = INSTANCE.cachedDefinitions.get(loc);
+                modifications.addAll(definitions.stream().map(FoodDefinition::modifications).flatMap(Collection::stream).toList());
+            }
+        });
 
         modifications.addAll(eaten.getOrDefault(DataComponents.INHERITED_MODIFICATIONS, Collections.emptyList()));
 
@@ -135,6 +139,10 @@ public class FoodDispatcher {
 
     @SubscribeEvent
     private void onStart(PlayerInteractEvent.RightClickItem event) {
+        if (collectModifications(event.getItemStack()).isEmpty()) {
+            return;
+        }
+
         Collection<ActiveModificationDefinition> mods = EffectiveSide.get().isClient()
                 ? ClientState.INSTANCE.getActive()
                 : event.getEntity().getData(Attachments.ACTIVE_MODIFICATIONS);
@@ -172,6 +180,7 @@ public class FoodDispatcher {
         }
 
         List<AttributeModificationDefinition> modifications = collectModifications(event.getItem());
+        if (modifications.isEmpty()) return;
 
         applyModifications(
                 event.getItem().getItemHolder(),
@@ -205,9 +214,8 @@ public class FoodDispatcher {
 
     @SubscribeEvent
     private void onServerTick(ServerTickEvent.Post event) {
-        var next = removals.poll();
-
-        if (next != null){
+        Tuple<ActiveModificationDefinition, ServerPlayer> next;
+        while ((next = removals.poll()) != null) {
             ActiveModificationDefinition.removeActiveModification(next.getA(), next.getB());
         }
     }
