@@ -59,7 +59,7 @@ public class FoodDispatcher {
 
         modifications.addAll(eaten.getOrDefault(DataComponents.INHERITED_MODIFICATIONS, Collections.emptyList()));
 
-        if (modifications.isEmpty()) {
+        if (Config.PROVIDE_FALLBACK_MODIFIER.get() && modifications.isEmpty()) {
             var food = eaten.get(net.minecraft.core.component.DataComponents.FOOD);
             if (food != null) {
                 modifications.add(new AttributeModificationDefinition(
