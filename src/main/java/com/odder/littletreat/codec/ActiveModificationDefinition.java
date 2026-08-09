@@ -61,6 +61,10 @@ public class ActiveModificationDefinition{
         SyncModificationsPayload.syncToClient(player);
     }
 
+    public static int calculateDuration(Collection<AttributeModificationDefinition> mods) {
+        return Math.toIntExact(Math.round(AttributeModificationDefinition.getMaxDuration(mods) * Config.GLOBAL_TIME_MULTIPLIER.get()));
+    }
+
     public Holder<Item> source;
     public List<AttributeModificationDefinition> defs;
     public int remainingTicks;
@@ -68,10 +72,19 @@ public class ActiveModificationDefinition{
     private final ItemStack item;
     private final int maxDuration;
 
+    public ActiveModificationDefinition(Holder<Item> source, Collection<AttributeModificationDefinition> defs) {
+        this.source = source;
+        this.defs = defs.stream().toList();
+        this.maxDuration = calculateDuration(defs);
+        this.remainingTicks = maxDuration;
+
+        this.item = new ItemStack(BuiltInRegistries.ITEM.get(source.getKey().location()));
+    }
+
     public ActiveModificationDefinition(Holder<Item> source, Collection<AttributeModificationDefinition> defs, int remainingTicks) {
         this.source = source;
         this.defs = defs.stream().toList();
-        this.maxDuration = Math.toIntExact(Math.round(AttributeModificationDefinition.getMaxDuration(defs) * Config.GLOBAL_TIME_MULTIPLIER.get()));
+        this.maxDuration = calculateDuration(defs);
         this.remainingTicks = remainingTicks;
 
         this.item = new ItemStack(BuiltInRegistries.ITEM.get(source.getKey().location()));

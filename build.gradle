@@ -113,11 +113,12 @@ dependencies {
     compileOnly "dev.architectury:architectury-neoforge:${arch_version}"
     compileOnly "curse.maven:farmers-delight-398521:${farmers_delight_file_id}"
     compileOnly "curse.maven:croptopia-415438:${croptopia_file_id}"
+    compileOnly "curse.maven:epherolib-885449:5872111"
 
     // maven was down when I tried this, falling back to curse maven for now..
 //    compileOnly "com.epherical.epherolib:EpheroLib-neoforge:1.0.0-${minecraft_version}"
 
-    compileOnly "curse.maven:epherolib-885449:5872111"
+    localRuntime "curse.maven:lootr-361276:8428025"
 
     if (project.hasProperty("withJEI")) {
         localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"

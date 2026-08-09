@@ -9,13 +9,18 @@ import com.odder.littletreat.processing.FoodDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.apache.logging.log4j.core.jmx.Server;
@@ -35,7 +40,15 @@ public class TreatCommands {
                         .then(getRegenAmountCommand())
                         .then(getForceSyncCommand())
                         .then(getDumpModificationsCommand())
+                        .then(getDumpAttributeModifiersCommand(event))
         );
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> getDumpAttributeModifiersCommand(RegisterCommandsEvent event) {
+        return Commands.literal("dumpattributemodifiers")
+                .then(Commands.argument("targets", EntityArgument.players())
+                .then(Commands.argument("attribute", ResourceArgument.resource(event.getBuildContext(), Registries.ATTRIBUTE))
+                        .executes(ctx -> dumpAttributeModifiers(ctx.getSource(), EntityArgument.getPlayers(ctx, "targets"), ResourceArgument.getAttribute(ctx, "attribute")))));
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> getDumpModificationsCommand() {
@@ -67,6 +80,21 @@ public class TreatCommands {
         return Commands.literal("possibleregen")
                 .then(Commands.argument("targets", EntityArgument.entities())
                         .executes(ctx -> checkRegen(ctx.getSource(), EntityArgument.getPlayers(ctx, "targets"))));
+    }
+
+    private static int dumpAttributeModifiers(CommandSourceStack source, Collection<ServerPlayer> targets, Holder.Reference<Attribute> attribute) {
+        source.sendSystemMessage(Component.literal(attribute.getRegisteredName()));
+
+        for (ServerPlayer player : targets) {
+            source.sendSystemMessage(Component.literal(player.getScoreboardName()));
+            AttributeInstance attr = player.getAttribute(attribute);
+            for (var mod : attr.getModifiers()) {
+                String msg = String.format("%s / %s / %s", mod.id(), mod.amount(), mod.operation().getSerializedName());
+                source.sendSystemMessage(Component.literal(msg));
+            }
+        }
+
+        return 0;
     }
 
     private static int dumpModifications(CommandSourceStack src, Collection<ServerPlayer> players) {

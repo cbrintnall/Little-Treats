@@ -63,7 +63,10 @@ public class ClientState {
         if (player == null || mc.options.hideGui) return;
 
         GuiGraphics gui = event.getGuiGraphics();
-        GuiDraw.drawActiveModifications(getActive(), gui, 2, 2);
+
+        int y = TreatUI.Anchors.hotbarTop() - 6;
+        int x = TreatUI.Anchors.hotbarLeft() + TreatUI.Anchors.hotbarWidth() + 24;
+        GuiDraw.drawActiveModifications(getActive(), gui, x, y, true);
     }
 
     @SubscribeEvent
@@ -76,9 +79,12 @@ public class ClientState {
         for (AttributeModificationDefinition mod : mods) {
             Component value = mod.format();
 
-            String time = StringUtil.formatTickDuration(mod.duration(), Minecraft.getInstance().level.tickRateManager().tickrate());
             event.getToolTip().add(
-                    Component.translatable(mod.attribute().value().getDescriptionId()).append(": ").append(value).append(Component.literal(String.format(" (%s)", time)).withStyle(ChatFormatting.GRAY)));
+                    Component.translatable(mod.attribute().value().getDescriptionId()).append(": ").append(value));
         }
+
+        int duration = ActiveModificationDefinition.calculateDuration(mods);
+        String time = StringUtil.formatTickDuration(duration, Minecraft.getInstance().level.tickRateManager().tickrate());
+        event.getToolTip().add(Component.literal(String.format("(%s)", time)).withStyle(ChatFormatting.GRAY));
     }
 }

@@ -1,6 +1,5 @@
 package com.odder.littletreat.processing;
 
-import com.google.common.eventbus.Subscribe;
 import com.odder.littletreat.Config;
 import com.odder.littletreat.LittleTreat;
 import com.odder.littletreat.client.ClientState;
@@ -11,13 +10,10 @@ import com.odder.littletreat.init.Attachments;
 import com.odder.littletreat.init.DataComponents;
 import com.odder.littletreat.init.Registries;
 import com.odder.littletreat.payload.SyncModificationsPayload;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -28,6 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.util.thread.EffectiveSide;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
@@ -35,8 +32,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.satisfy.vinery.core.util.FoodComponent;
 
 import java.util.*;
 
@@ -48,10 +43,19 @@ public class FoodDispatcher {
 
     public FoodDispatcher() {}
 
+    public static boolean isFood(ItemStack stack) {
+        return stack.get(net.minecraft.core.component.DataComponents.FOOD) != null;
+    }
+
+    public static boolean isFood(Holder<Item> item) {
+        return item.is(Tags.Items.FOODS);
+    }
+
     public static List<AttributeModificationDefinition> collectModifications(ItemStack eaten) {
         List<AttributeModificationDefinition> modifications = new ArrayList<>();
 
         ResourceLocation loc = eaten.getItemHolder().getKey().location();
+
         if (INSTANCE.cachedDefinitions.containsKey(loc)) {
             var definitions = INSTANCE.cachedDefinitions.get(loc);
             modifications.addAll(definitions.stream().map(FoodDefinition::modifications).flatMap(Collection::stream).toList());
@@ -74,6 +78,10 @@ public class FoodDispatcher {
         return modifications;
     }
 
+    public List<FoodDefinition> getDefinition(ItemStack item) {
+        return cachedDefinitions.getOrDefault(item.getItemHolder().getKey().location(), new ArrayList<>());
+    }
+
     /**
      * Applies the relevant modifications and attaches the active definition to the player
      * @param src
@@ -90,7 +98,7 @@ public class FoodDispatcher {
             }
         }
 
-        ActiveModificationDefinition modDef = new ActiveModificationDefinition(src, appliedModifiers, AttributeModificationDefinition.getMaxDuration(appliedModifiers));
+        ActiveModificationDefinition modDef = new ActiveModificationDefinition(src, appliedModifiers);
         ActiveModificationDefinition.addActiveModification(modDef, player);
 
         return modDef;
@@ -138,7 +146,7 @@ public class FoodDispatcher {
         cachedDefinitions.clear();
 
         for (var entry : registry.entrySet()) {
-            entry.getValue().items().forEach(item -> {
+            entry.getValue().getItems().forEach(item -> {
                 ResourceLocation loc = item.getKey().location();
 
                 if (!cachedDefinitions.containsKey(loc)) {
@@ -149,12 +157,12 @@ public class FoodDispatcher {
             });
         }
 
-        LittleTreat.LOGGER.debug("Rebuilt Little Treat item cache, {} items counted", cachedDefinitions.keySet().size());
+        LittleTreat.LOGGER.debug("Rebuilt Little Treat item cache, {} items counted", cachedDefinitions.size());
     }
 
     @SubscribeEvent
     private void onStart(PlayerInteractEvent.RightClickItem event) {
-        if (event.getItemStack().get(net.minecraft.core.component.DataComponents.FOOD) == null) return;
+        if (!isFood(event.getItemStack())) return;
 
         Collection<ActiveModificationDefinition> mods = EffectiveSide.get().isClient()
                 ? ClientState.INSTANCE.getActive()
@@ -174,7 +182,7 @@ public class FoodDispatcher {
     @SubscribeEvent
     private void onFinish(LivingEntityUseItemEvent.Finish event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        if (event.getItem().get(net.minecraft.core.component.DataComponents.FOOD) == null) return;
+        if (!isFood(event.getItem())) return;
 
         ActiveModificationDefinition activeMod = getActiveModificationForFood(event.getItem().getItemHolder(), serverPlayer);
 
@@ -219,7 +227,6 @@ public class FoodDispatcher {
                 AttributeInstance attr = serverPlayer.getAttribute(attrDef.attribute());
                 if (attr != null) attr.addOrUpdateTransientModifier(attrDef.toModifier(mod.source));
             }
-
         }
 
         SyncModificationsPayload.syncToClient(serverPlayer);

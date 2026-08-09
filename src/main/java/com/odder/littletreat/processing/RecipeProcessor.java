@@ -8,12 +8,23 @@ import com.odder.littletreat.init.DataComponents;
 import com.odder.littletreat.init.Registries;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.util.thread.EffectiveSide;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
@@ -23,35 +34,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RecipeProcessor {
-    public static RecipeProcessor INSTANCE = new RecipeProcessor();
+    public RecipeMaster recipeMaster;
 
-    public void onRecipeAssembledEvent(RecipeAssembledEvent event) {
-        if (event.getOutput().get(net.minecraft.core.component.DataComponents.FOOD) == null) return;
-        process(event.getInputs(), event.getOutput(), event.getRecipeType());
-    }
-
-    private void process(Collection<ItemStack> inputs, ItemStack output, RecipeType<?> type) {
-        if (EffectiveSide.get().isClient()) return;
-
-        var modifiers = inputs
-                .stream()
-                .map(stack -> getModificationsFor(stack.getItemHolder()))
-                .flatMap(Collection::stream)
-                .toList();
-
-        modifiers = getFlattenModifiers(modifiers);
-
-        output.set(DataComponents.INHERITED_MODIFICATIONS, modifiers);
-
-        LittleTreat.LOGGER.debug(
-                "Created item {} from {} with modifications: {}",
-                output.getDisplayName().getString(),
-                type,
-                modifiers.stream().map(mod -> mod.attribute().getKey().location().toLanguageKey()).collect(Collectors.joining())
-        );
-    }
-
-    private List<AttributeModificationDefinition> getFlattenModifiers(Collection<AttributeModificationDefinition> mods) {
+    public List<AttributeModificationDefinition> getFlattenModifiers(Collection<AttributeModificationDefinition> mods) {
         HashMap<Holder<Attribute>, List<AttributeModificationDefinition>> similar = new HashMap<>();
         List<AttributeModificationDefinition> flattened = new ArrayList<>();
 
@@ -90,6 +75,39 @@ public class RecipeProcessor {
         return flattened;
     }
 
+    @SubscribeEvent
+    private void onRecipeAssembledEvent(RecipeAssembledEvent event) {
+        if (event.getOutput().get(net.minecraft.core.component.DataComponents.FOOD) == null) return;
+        process(event.getInputs(), event.getOutput(), event.getRecipeType());
+    }
+
+    @SubscribeEvent
+    private void onServerStarted(ServerStartedEvent event) {
+        recipeMaster = new RecipeMaster(event.getServer());
+        recipeMaster.invalidateAndBuild(event.getServer().registryAccess());
+    }
+
+    private void process(Collection<ItemStack> inputs, ItemStack output, RecipeType<?> type) {
+        if (EffectiveSide.get().isClient()) return;
+
+        var modifiers = inputs
+                .stream()
+                .map(stack -> getModificationsFor(stack.getItemHolder()))
+                .flatMap(Collection::stream)
+                .toList();
+
+        modifiers = getFlattenModifiers(modifiers);
+
+        output.set(DataComponents.INHERITED_MODIFICATIONS, modifiers);
+
+        LittleTreat.LOGGER.debug(
+                "Created item {} from {} with modifications: {}",
+                output.getDisplayName().getString(),
+                type,
+                modifiers.stream().map(mod -> mod.attribute().getKey().location().toLanguageKey()).collect(Collectors.joining())
+        );
+    }
+
     private List<AttributeModificationDefinition> getModificationsFor(Holder<Item> item) {
         List<AttributeModificationDefinition> modifications = new ArrayList<>();
 
@@ -105,7 +123,7 @@ public class RecipeProcessor {
         registry.ifPresent(registryEntry -> {
             registryEntry.asHolderIdMap().forEach(con -> {
                 FoodDefinition definition = con.value();
-                HolderSet<Item> items = definition.items();
+                HolderSet<Item> items = definition.getItems();
 
                 if (items.contains(item)) {
                     modifications.addAll(definition.modifications());

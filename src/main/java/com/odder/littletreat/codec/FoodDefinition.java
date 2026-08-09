@@ -17,4 +17,8 @@ public record FoodDefinition(
             RegistryCodecs.homogeneousList(Registries.ITEM).fieldOf("items").forGetter(FoodDefinition::items),
             AttributeModificationDefinition.CODEC.listOf().fieldOf("modifications").forGetter(FoodDefinition::modifications)
     ).apply(inst, FoodDefinition::new));
+
+    public HolderSet<Item> getItems() {
+        return items;
+    }
 }

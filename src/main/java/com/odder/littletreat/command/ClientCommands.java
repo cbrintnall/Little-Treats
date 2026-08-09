@@ -78,7 +78,7 @@ public class ClientCommands {
         Registry<FoodDefinition> definitions = access.registryOrThrow(com.odder.littletreat.init.Registries.FOOD_DEFINITIONS);
         Set<Item> coveredItems = new HashSet<>();
         for (FoodDefinition def : definitions) {
-            for (Holder<Item> holder : def.items()) {
+            for (Holder<Item> holder : def.getItems()) {
                 coveredItems.add(holder.value());
             }
         }

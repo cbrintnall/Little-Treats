@@ -13,6 +13,7 @@ public class Config {
     public static final ModConfigSpec.DoubleValue GLOBAL_TIME_MULTIPLIER = BUILDER.defineInRange("globalTimeMultiplier", 1.0, 0.0, Double.MAX_VALUE);
     public static final ModConfigSpec.BooleanValue IGNORE_POTION_RENDERING = BUILDER.define("ignorePotionRendering", false);
     public static final ModConfigSpec.BooleanValue PROVIDE_FALLBACK_MODIFIER = BUILDER.define("provideFallbackModifier", true);
+    public static final ModConfigSpec.DoubleValue LOW_FOOD_WARNING_PERCENT = BUILDER.defineInRange("lowFoodWarningPercent", 0.333, 0.0, 1.0);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 }

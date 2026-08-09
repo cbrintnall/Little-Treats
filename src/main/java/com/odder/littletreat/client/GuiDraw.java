@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class GuiDraw {
+    private static final ResourceLocation EFFECT_BACKGROUND_UI = ResourceLocation.withDefaultNamespace("hud/effect_background");
     private static final ResourceLocation EFFECT_BACKGROUND_LARGE_SPRITE = ResourceLocation.withDefaultNamespace("container/inventory/effect_background_large");
     private static final ResourceLocation EFFECT_BACKGROUND_SMALL_SPRITE = ResourceLocation.withDefaultNamespace("container/inventory/effect_background_small");
     private static final ResourceLocation HEADER_SEPARATOR = ResourceLocation.withDefaultNamespace("textures/gui/header_separator.png");
@@ -36,20 +37,24 @@ public class GuiDraw {
      * @param y y coord to draw at
      * @param progress 0.0 - 1.0
      */
-    public static void drawDurationBar(GuiGraphics gfx, int x, int y, float progress, int width) {
+    public static void drawDurationBar(GuiGraphics gfx, int x, int y, float progress, int width, int color) {
         progress = Math.clamp(progress, 0.0f, 1.0f);
         int usedWidth = (int) (width * progress);
 
         gfx.fill(x, y, x + width, y + 2, 0xFF000000);
-        gfx.fill(x, y, x + usedWidth, y + 2, 0xFF40C040);
+        gfx.fill(x, y, x + usedWidth, y + 2, color);
     }
 
-    public static void drawActiveModifications(Collection<ActiveModificationDefinition> mods, GuiGraphics gfx, int x, int y) {
+    public static void drawActiveModifications(Collection<ActiveModificationDefinition> mods, GuiGraphics gfx, int x, int y, boolean horizontal) {
         for(ActiveModificationDefinition activeModificationDefinition : mods) {
             // client state can get stale, skip drawing anything under zero (local state will be eventually correct)
             if (activeModificationDefinition.remainingTicks < 0) continue;
 
-            y += drawActiveModification(gfx, activeModificationDefinition, x, y);
+            if (horizontal) {
+                x += drawActiveModification(gfx, activeModificationDefinition, x, y);
+            } else {
+                y += drawActiveModification(gfx, activeModificationDefinition, x, y);
+            }
         }
     }
 
@@ -126,9 +131,16 @@ public class GuiDraw {
     }
 
     private static int drawActiveModification(GuiGraphics gfx, ActiveModificationDefinition def, int x, int y) {
-        gfx.blitSprite(EFFECT_BACKGROUND_SMALL_SPRITE, x, y, BACKGROUND_SPRITE_SIZE, BACKGROUND_SPRITE_SIZE);
-        gfx.renderItem(def.getItem(), x+4,y+4);
-        GuiDraw.drawDurationBar(gfx, x+2, y + 20, def.getRemainingPercent(), 20);
+        gfx.blitSprite(EFFECT_BACKGROUND_UI, x, y, BACKGROUND_SPRITE_SIZE, BACKGROUND_SPRITE_SIZE);
+        int usedY = y+4;
+        int clr = TreatUI.withFullAlpha(ChatFormatting.GREEN);
+        if (def.getRemainingPercent() <= Config.LOW_FOOD_WARNING_PERCENT.get()) {
+            usedY += Math.sin((x + y + Minecraft.getInstance().level.getGameTime())*0.1);
+            clr = TreatUI.withFullAlpha(ChatFormatting.YELLOW);
+        }
+
+        gfx.renderItem(def.getItem(), x+4,usedY);
+        GuiDraw.drawDurationBar(gfx, x+2, y + 20, def.getRemainingPercent(), 20, clr);
         return BACKGROUND_SPRITE_SIZE + Config.EFFECT_MARGIN.get();
     }
 

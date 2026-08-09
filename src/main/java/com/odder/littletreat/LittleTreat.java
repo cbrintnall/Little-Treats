@@ -27,6 +27,7 @@ public class LittleTreat {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final HealthRegen healthRegen = new HealthRegen();
+    public static final RecipeProcessor recipeProcessor = new RecipeProcessor();
 
     public static boolean FARMERS_DELIGHT_PRESENT = false;
 
@@ -39,12 +40,13 @@ public class LittleTreat {
 
         Attachments.ATTACHMENTS.register(modEventBus);
         DataComponents.COMPONENTS.register(modEventBus);
+        Registries.LOOT_MODIFIER_SERIALIZERS.register(modEventBus);
 
         modEventBus.addListener(Registries::registerDatapackRegistries);
         modEventBus.addListener(LittleTreat::registerPayloads);
 
         NeoForge.EVENT_BUS.register(ClientCommands.class);
-        NeoForge.EVENT_BUS.addListener(RecipeProcessor.INSTANCE::onRecipeAssembledEvent);
+        NeoForge.EVENT_BUS.register(recipeProcessor);
         NeoForge.EVENT_BUS.addListener(TreatCommands::onRegisterCommands);
         NeoForge.EVENT_BUS.register(healthRegen);
     }
