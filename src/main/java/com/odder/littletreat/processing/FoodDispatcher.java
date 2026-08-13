@@ -146,7 +146,7 @@ public class FoodDispatcher {
         cachedDefinitions.clear();
 
         for (var entry : registry.entrySet()) {
-            entry.getValue().getItems().forEach(item -> {
+            entry.getValue().getItems(access).forEach(item -> {
                 ResourceLocation loc = item.getKey().location();
 
                 if (!cachedDefinitions.containsKey(loc)) {

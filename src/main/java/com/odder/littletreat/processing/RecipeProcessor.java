@@ -118,12 +118,13 @@ public class RecipeProcessor {
             return modifications;
         }
 
-        var registry = server.registryAccess().registry(Registries.FOOD_DEFINITIONS);
+        var access = server.registryAccess();
+        var registry = access.registry(Registries.FOOD_DEFINITIONS);
 
         registry.ifPresent(registryEntry -> {
             registryEntry.asHolderIdMap().forEach(con -> {
                 FoodDefinition definition = con.value();
-                HolderSet<Item> items = definition.getItems();
+                HolderSet<Item> items = definition.getItems(access);
 
                 if (items.contains(item)) {
                     modifications.addAll(definition.modifications());
