@@ -26,6 +26,8 @@ public class ComposedFoodLootModifier extends LootModifier {
 
     @Override
     protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> items, LootContext lootContext) {
+        if (LittleTreat.recipeProcessor.recipeMaster == null) return items;
+
         for (ItemStack item : items) {
             if (FoodDispatcher.isFood(item)) {
                 List<FoodDefinition> appliedDefinitions = LittleTreat.recipeProcessor.recipeMaster.getPotentialFoodComposition(item.getItemHolder());
